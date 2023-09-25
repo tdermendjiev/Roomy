@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Roomy</title>
+        <item>
+            <title>0.1-alpha</title>
+            <pubDate>Mon, 25 Sep 2023 11:01:46 +0300</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>0.1-alpha</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/tdermendjiev/Roomy/releases/download/0.1alpha/Roomy.dmg" length="4753227" type="application/octet-stream"/>
+        </item>
+    </channel>
+</rss>
