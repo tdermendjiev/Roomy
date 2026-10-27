@@ -20,6 +20,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build /src/RoomyCore/.build/release/roomy /usr/bin/roomy
 COPY packaging/config/policy.agent-host.json /etc/roomy/policy.json
 ENV ROOMY_POLICY=/etc/roomy/policy.json
-EXPOSE 9477
+EXPOSE 9477 9478
 ENTRYPOINT ["/usr/bin/roomy"]
 CMD ["--help"]

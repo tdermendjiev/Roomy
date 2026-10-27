@@ -1,0 +1,16 @@
+# Roomy CLI container from prebuilt static binaries (what the release workflow publishes as ghcr.io/tdermendjiev/roomy).
+# Expects dist/linux/amd64/roomy and dist/linux/arm64/roomy in the build context (packaging/scripts/build-linux.sh on each arch,
+# or the release tarballs extracted). For a from-source build use packaging/docker/Dockerfile.
+#
+#   docker buildx build --platform linux/amd64,linux/arm64 -f packaging/docker/Dockerfile.prebuilt -t roomy .
+FROM ubuntu:24.04
+ARG TARGETARCH
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates coreutils git tzdata \
+ && rm -rf /var/lib/apt/lists/* \
+ && mkdir -p /etc/roomy /var/log/roomy
+COPY dist/linux/${TARGETARCH}/roomy /usr/bin/roomy
+COPY packaging/config/policy.agent-host.json /etc/roomy/policy.json
+ENV ROOMY_POLICY=/etc/roomy/policy.json
+EXPOSE 9477 9478
+ENTRYPOINT ["/usr/bin/roomy"]
+CMD ["--help"]
