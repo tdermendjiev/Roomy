@@ -30,7 +30,9 @@ jobs:
     container: ${{ matrix.image }}
     strategy:
       matrix:
-        image: ["swift:6.1-noble", "swift:6.0-jammy"]
+        include:
+          - { image: "swift:6.1-noble", label: swift6.1-noble }
+          - { image: "swift:6.0-jammy", label: swift6.0-jammy }
     steps:
       - uses: actions/checkout@v4
       - name: Build & test package
@@ -44,7 +46,7 @@ jobs:
           packaging/scripts/build-linux.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: roomy-linux-${{ matrix.image }}
+          name: roomy-linux-${{ matrix.label }}
           path: dist/linux/
 
   app-macos:
