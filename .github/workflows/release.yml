@@ -94,7 +94,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
-        with: { path: artifacts }
+        with:
+          path: artifacts
+          pattern: linux-*
       - name: Unpack static binaries
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
@@ -111,6 +113,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false   # no .dockerbuild artifact next to the release files
         with:
           context: .
           file: packaging/docker/Dockerfile.prebuilt
@@ -128,7 +132,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
-        with: { path: dist/release, merge-multiple: true }
+        with:
+          path: dist/release
+          pattern: '{linux-*,macos}'
+          merge-multiple: true
       - name: SBOM, checksums, signatures
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
