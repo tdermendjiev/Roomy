@@ -22,3 +22,8 @@ dist/
 # Never commit license signing keys
 *.signing.key
 license-signing.key
+
+# Xcode Organizer exports and private tool builds
+Roomy 20*/
+tools/licensetool/.build/
+tools/licensetool/.swiftpm/
