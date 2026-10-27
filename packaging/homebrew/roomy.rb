@@ -1,23 +1,19 @@
 # Homebrew formula for the roomy CLI. Lives in the tap repo (tdermendjiev/homebrew-roomy) as Formula/roomy.rb.
-# Update `url`, `sha256` and `version` per release; packaging/scripts/release.sh prints the values.
+# Installs the signed and notarized universal binary from the GitHub release, so no Xcode is needed.
+# The release workflow rewrites `url`, `sha256` and `version` on every tagged release.
 class Roomy < Formula
-  desc "Find and remove regenerable developer and AI-agent artifacts safely"
+  desc "Free up the disk space developer tools and AI agents leave behind"
   homepage "https://getroomy.dev"
-  url "https://github.com/tdermendjiev/Roomy/archive/refs/tags/v1.3.0.tar.gz"
-  sha256 "REPLACE_WITH_SOURCE_TARBALL_SHA256"
-  license :cannot_represent
-  head "https://github.com/tdermendjiev/Roomy.git", branch: "main"
+  url "https://github.com/tdermendjiev/Roomy/releases/download/v1.3.0/roomy-1.3.0-macos-universal.tar.gz"
+  sha256 "d3990ae418c6c2d1e843444e1ff37a5fce5ee301b7f0125b790b118153ffd0f2"
+  version "1.3.0"
+  license "Apache-2.0"
 
-  depends_on xcode: ["15.0", :build]
   depends_on macos: :ventura
 
   def install
-    cd "RoomyCore" do
-      system "swift", "build", "--disable-sandbox", "-c", "release", "--product", "roomy"
-      bin.install ".build/release/roomy"
-    end
+    bin.install "roomy"
     generate_completions_from_executable(bin/"roomy", "--generate-completion-script")
-    doc.install "docs/cli.md", "docs/fleet.md", "docs/agents.md"
   end
 
   def caveats

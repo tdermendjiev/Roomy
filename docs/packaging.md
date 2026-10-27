@@ -13,7 +13,7 @@ The private tree (`Roomy_desktop`: Mac app, landing site, EULA, license tool) is
 | Linux CLI (static) | `packaging/scripts/build-linux.sh` (amd64, arm64) | GitHub release tarball |
 | .deb / .rpm / .apk | `packaging/scripts/package-linux.sh <version> <arch>` via [nfpm](https://nfpm.goreleaser.com) and `packaging/nfpm.yaml` | GitHub release |
 | Container image | `packaging/docker/Dockerfile.prebuilt` (ubuntu:24.04 plus the static binaries from the Linux jobs; CI uses this, amd64 and arm64). `packaging/docker/Dockerfile` builds from source for local use | `ghcr.io/tdermendjiev/roomy` |
-| Homebrew | `packaging/homebrew/roomy.rb` in the tap `tdermendjiev/homebrew-roomy` | `brew install tdermendjiev/roomy/roomy` |
+| Homebrew | `packaging/homebrew/roomy.rb` in the tap `tdermendjiev/homebrew-roomy`; installs the notarized macOS tarball from the release, no Xcode needed | `brew install tdermendjiev/roomy/roomy` |
 | SBOM | `packaging/scripts/sbom.py <version>` (CycloneDX 1.5 from `Package.resolved`) | GitHub release |
 | Checksums + signature | `packaging/scripts/sign.sh dist/release` (SHA256SUMS, GPG detached signature, optional cosign) | GitHub release |
 
