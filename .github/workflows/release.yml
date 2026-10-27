@@ -75,9 +75,13 @@ jobs:
           NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
         run: |
           packaging/scripts/build-macos.sh
-          if [ -n "$NOTARY_KEY_P8" ]; then
+          if [ -n "$NOTARY_KEY_P8" ] && [ -n "$DEVELOPER_ID_APPLICATION" ]; then
+            # notarytool takes zip/pkg/dmg, so submit a zip of the signed binary; the ticket is tied to the binary's signature
             echo "$NOTARY_KEY_P8" > /tmp/notary.p8
-            xcrun notarytool submit dist/macos/roomy-*-macos-universal.tar.gz --key /tmp/notary.p8 --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER_ID" --wait
+            ditto -c -k dist/macos/roomy /tmp/roomy-notarize.zip
+            xcrun notarytool submit /tmp/roomy-notarize.zip --key /tmp/notary.p8 --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER_ID" --wait
+          else
+            echo "notarization skipped (needs DEVELOPER_ID_APPLICATION and NOTARY_* secrets)"
           fi
       - uses: actions/upload-artifact@v4
         with: { name: macos, path: dist/macos/ }
