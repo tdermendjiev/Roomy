@@ -1,0 +1,22 @@
+# Roomy Fleet — one policy run as the given user.
+#   systemctl enable --now roomy-fleet@agent.timer
+# The instance name is the Unix user whose home is cleaned. Policy: /etc/roomy/policy.json
+# (override per user with ~/.roomy/policy.json, which takes precedence when ROOMY_POLICY is unset).
+[Unit]
+Description=Roomy Fleet cleanup run for %i
+Documentation=https://getroomy.dev/docs/fleet
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=%i
+Environment=ROOMY_POLICY=/etc/roomy/policy.json
+ExecStart=/usr/bin/roomy fleet run
+# Exit 4 means another run holds the lock; treat as success for the timer.
+SuccessExitStatus=4
+Nice=10
+IOSchedulingClass=idle
+ProtectSystem=full
+ReadWritePaths=/var/lib/node_exporter/textfile_collector /var/log/roomy
+NoNewPrivileges=true
+PrivateTmp=false

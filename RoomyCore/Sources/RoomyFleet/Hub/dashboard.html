@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>__HUB_TITLE__</title>
+<meta name="robots" content="noindex" />
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0f1014; --bg-2: #15161c; --bg-3: #1a1b22; --bg-4: #22232c;
+  --line: rgba(255,255,255,0.08); --line-2: rgba(255,255,255,0.14);
+  --text: #ececf1; --text-2: #9b9ba8; --text-3: #65656b;
+  --accent: #4f8ff7; --accent-2: #6ba3ff; --accent-wash: rgba(79,143,247,0.12);
+  --safe: #34d399; --caution: #fbbf24; --warning: #f87171;
+  --ok: #34d399; --attention: #fbbf24; --stale: #8b8b96; --danger: #f87171;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  --radius: 12px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select { font: inherit; color: var(--text); background: var(--bg-3); border: 1px solid var(--line-2); border-radius: 8px; padding: 7px 10px; outline: none; }
+input:focus, select:focus { border-color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.muted { color: var(--text-2); } .faint { color: var(--text-3); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* top bar */
+.top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 18px; height: 56px; padding: 0 22px; background: rgba(15,16,20,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+.brand .mark { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: grid; place-items: center; }
+.brand .mark svg { width: 15px; height: 15px; }
+.brand .sub { color: var(--text-3); font-weight: 500; }
+.tabs { display: flex; gap: 4px; margin-left: 8px; }
+.tabs button { padding: 7px 12px; border-radius: 8px; color: var(--text-2); font-weight: 500; }
+.tabs button:hover { color: var(--text); background: var(--bg-3); }
+.tabs button.on { color: var(--text); background: var(--bg-4); }
+.top .right { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 12.5px; color: var(--text-2); }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line-2); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.badge.fleet { border-color: rgba(79,143,247,0.4); color: var(--accent-2); background: var(--accent-wash); }
+.badge.warn { border-color: rgba(251,191,36,0.45); color: var(--caution); background: rgba(251,191,36,0.08); }
+.iconbtn { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: var(--text-2); }
+.iconbtn:hover { background: var(--bg-3); color: var(--text); }
+.iconbtn svg { width: 16px; height: 16px; }
+
+main { max-width: 1440px; margin: 0 auto; padding: 22px 22px 60px; }
+.grid { display: grid; gap: 14px; }
+.kpis { grid-template-columns: repeat(5, 1fr); }
+.two { grid-template-columns: 1fr 1fr; }
+.three-two { grid-template-columns: 3fr 2fr; }
+.two-three { grid-template-columns: 2fr 3fr; }
+@media (max-width: 1100px) { .kpis { grid-template-columns: repeat(2, 1fr); } .two, .three-two, .two-three { grid-template-columns: 1fr; } }
+.card { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; min-width: 0; }
+.card h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--text-2); letter-spacing: 0.01em; display: flex; align-items: center; gap: 8px; }
+.card h3 .hint { margin-left: auto; font-weight: 400; color: var(--text-3); font-size: 12px; }
+.kpi .label { font-size: 12.5px; color: var(--text-2); }
+.kpi .value { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 4px 0 6px; line-height: 1.1; }
+.kpi .value small { font-size: 14px; font-weight: 500; color: var(--text-2); margin-left: 4px; }
+.kpi .sub { font-size: 12px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; min-height: 18px; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+.dot.ok { background: var(--ok); } .dot.attention { background: var(--attention); } .dot.stale { background: var(--stale); }
+.dot.safe { background: var(--safe); } .dot.caution { background: var(--caution); } .dot.warning { background: var(--warning); }
+.stack { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; background: var(--bg-4); margin-top: 8px; }
+.stack span { display: block; height: 100%; }
+.stack .safe { background: var(--safe); } .stack .caution { background: var(--caution); } .stack .warning { background: var(--warning); }
+.legend { display: flex; gap: 12px; font-size: 12px; color: var(--text-2); flex-wrap: wrap; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; font-size: 12.5px; }
+.status svg { width: 13px; height: 13px; }
+.status.healthy { color: var(--ok); } .status.attention { color: var(--attention); } .status.stale { color: var(--stale); }
+.chip { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.01em; vertical-align: middle; }
+.chip.safe { background: rgba(52,211,153,0.14); color: var(--safe); }
+.chip.caution { background: rgba(251,191,36,0.14); color: var(--caution); }
+.chip.warning { background: rgba(248,113,113,0.14); color: var(--warning); }
+.chip.dry { background: rgba(79,143,247,0.14); color: var(--accent-2); }
+.chip.tag { background: var(--bg-4); color: var(--text-2); font-weight: 500; }
+.chip.plat { background: var(--bg-4); color: var(--text-2); font-weight: 500; font-family: var(--mono); font-size: 11px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; color: var(--text-3); font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th.r, td.r { text-align: right; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tbody tr.row:hover { background: var(--bg-3); cursor: pointer; }
+.hostname { font-weight: 600; }
+.tags { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+.meter { position: relative; width: 110px; height: 8px; border-radius: 4px; background: rgba(79,143,247,0.18); overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+.meter span { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 4px; }
+.meter.low { background: rgba(248,113,113,0.2); } .meter.low span { background: var(--danger); }
+.meter.mid { background: rgba(251,191,36,0.2); } .meter.mid span { background: var(--caution); }
+.spark { display: block; }
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.toolbar input[type=search] { width: 260px; }
+.filters { display: flex; gap: 6px; }
+.filters button { padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--text-2); font-size: 12.5px; }
+.filters button.on { border-color: var(--accent); color: var(--text); background: var(--accent-wash); }
+.empty { padding: 40px; text-align: center; color: var(--text-3); }
+.tooltip { position: fixed; z-index: 50; pointer-events: none; background: #23242d; border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--text); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; max-width: 320px; }
+.tooltip b { font-weight: 600; } .tooltip .muted { display: block; margin-top: 2px; }
+.bars { display: grid; gap: 7px; }
+.bar-row { display: grid; grid-template-columns: 170px 1fr 80px; align-items: center; gap: 10px; font-size: 12.5px; }
+.bar-row .name { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .track { height: 14px; display: flex; gap: 2px; }
+.bar-row .track span { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--accent); min-width: 2px; }
+.bar-row .track span.safe { background: var(--safe); } .bar-row .track span.caution { background: var(--caution); } .bar-row .track span.warning { background: var(--warning); }
+.bar-row .track span:not(:last-child) { border-radius: 0; }
+.bar-row .track span:first-child { border-radius: 0; }
+.bar-row .track span:last-child { border-radius: 0 4px 4px 0; }
+.bar-row .val { text-align: right; color: var(--text); }
+.bar-row:hover .name { color: var(--text); }
+svg.chart { width: 100%; height: 190px; display: block; overflow: visible; }
+svg.chart text { fill: var(--text-3); font-size: 11px; font-family: var(--sans); }
+svg.chart .grid line { stroke: var(--line); stroke-width: 1; }
+svg.chart rect.col { fill: var(--accent); }
+svg.chart rect.col.hover { fill: var(--accent-2); }
+svg.chart rect.col.fail { fill: var(--danger); }
+svg.chart .label { fill: var(--text); font-weight: 500; }
+svg.chart path.line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+svg.chart path.area { fill: var(--accent); opacity: 0.1; }
+svg.chart circle.pt { fill: var(--accent); stroke: var(--bg-2); stroke-width: 2; }
+.detail-head { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 16px; flex-wrap: wrap; }
+.detail-head h2 { margin: 0; font-size: 24px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; }
+.detail-head .meta { color: var(--text-2); font-size: 13px; margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
+.detail-head .actions { margin-left: auto; display: flex; gap: 8px; }
+.btn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line-2); color: var(--text); font-weight: 500; font-size: 13px; background: var(--bg-3); }
+.btn:hover { background: var(--bg-4); }
+.btn.danger { color: var(--danger); border-color: rgba(248,113,113,0.4); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.back { color: var(--text-2); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.back:hover { color: var(--text); }
+.reasons { color: var(--attention); font-size: 12px; }
+.events { display: grid; gap: 0; }
+.event { display: grid; grid-template-columns: 150px 130px 1fr auto; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line); font-size: 13px; align-items: center; }
+.event:last-child { border-bottom: 0; }
+.event .kind { color: var(--text-2); }
+pre.json { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow: auto; font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--text-2); max-height: 560px; margin: 0; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; place-items: center; z-index: 100; }
+.modal { background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 14px; padding: 22px; width: 380px; }
+.modal h3 { margin: 0 0 8px; font-size: 16px; }
+.modal p { margin: 0 0 14px; color: var(--text-2); font-size: 13px; }
+.modal input { width: 100%; margin-bottom: 12px; }
+.modal .row { display: flex; justify-content: flex-end; gap: 8px; }
+.note { font-size: 12.5px; color: var(--text-2); background: var(--bg-3); border-radius: 8px; padding: 8px 10px; margin-top: 8px; }
+.kv { display: grid; grid-template-columns: 160px 1fr; gap: 6px 14px; font-size: 13px; }
+.kv dt { color: var(--text-3); margin: 0; } .kv dd { margin: 0; }
+.footer { margin-top: 26px; color: var(--text-3); font-size: 12px; display: flex; gap: 14px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/">
+    <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M6 7v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7M9 7V4h6v3"/></svg></span>
+    <span>__HUB_TITLE__</span><span class="sub">· Roomy Hub</span>
+  </a>
+  <nav class="tabs" id="tabs">
+    <button data-view="overview">Overview</button>
+    <button data-view="hosts">Hosts</button>
+    <button data-view="policies">Policies</button>
+    <button data-view="activity">Activity</button>
+  </nav>
+  <div class="right">
+    <span id="license" class="badge"></span>
+    <span id="updated" class="faint"></span>
+    <button class="iconbtn" id="refresh" title="Refresh now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></button>
+    <button class="iconbtn" id="tokenbtn" title="Admin token"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="M10.9 12.1 21 2M15 8l3 3M18 5l3 3"/></svg></button>
+  </div>
+</header>
+<main id="main"><div class="empty">Loading…</div></main>
+<div class="tooltip" id="tip"></div>
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>Admin token</h3>
+    <p>This hub requires a token for the API. It is stored only in this browser.</p>
+    <input id="tokeninput" type="password" placeholder="Bearer token" autocomplete="off" />
+    <div class="row"><button class="btn" id="tokencancel">Cancel</button><button class="btn primary" id="tokensave">Save</button></div>
+  </div>
+</div>
+<script>
+(() => {
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtBytes = (n, d) => {
+  n = Number(n) || 0; const neg = n < 0; n = Math.abs(n);
+  // Binary units labelled the way the Mac app and CLI label them (1 GB = 1024³ bytes).
+  const u = ['B','KB','MB','GB','TB','PB']; let i = 0;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  const digits = d ?? (n >= 100 ? 0 : n >= 10 ? 1 : i === 0 ? 0 : 2);
+  return (neg ? '-' : '') + n.toFixed(digits) + ' ' + u[i];
+};
+const fmtNum = n => (Number(n) || 0).toLocaleString();
+const pct = x => Math.round((x || 0) * 100) + '%';
+const ago = iso => {
+  if (!iso) return '–';
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s/60) + ' min ago';
+  if (s < 86400) return Math.floor(s/3600) + ' h ago'; return Math.floor(s/86400) + ' d ago';
+};
+const fmtDate = iso => iso ? new Date(iso).toLocaleString(undefined, {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '–';
+const TIERS = [['safe','Safe'],['caution','Review'],['warning','Irreversible']];
+const tierName = t => (TIERS.find(x => x[0] === t) || [t, t])[1];
+const CATS = {aiTools:'AI tools', agentHost:'Agent host leftovers', globalCaches:'Global caches', python:'Python', xcode:'Xcode', homebrew:'Homebrew', docker:'Docker', globalModules:'Global modules', project:'Projects'};
+const catName = c => CATS[c] || c;
+const STATUS_ICON = {
+  healthy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  attention: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke-linejoin="round"/></svg>',
+  stale: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+};
+const statusHTML = (s, label) => `<span class="status ${s}">${STATUS_ICON[s] || ''}${esc(label || (s === 'stale' ? 'Stale' : s === 'attention' ? 'Attention' : 'Healthy'))}</span>`;
+const stackHTML = bt => {
+  const total = TIERS.reduce((a, [k]) => a + (bt[k] || 0), 0) || 1;
+  return `<div class="stack" role="img" aria-label="by tier">${TIERS.map(([k]) => `<span class="${k}" style="width:${(bt[k]||0)/total*100}%" title="${tierName(k)} ${fmtBytes(bt[k]||0)}"></span>`).join('')}</div>`;
+};
+const legendHTML = (bt) => `<div class="legend">${TIERS.map(([k, n]) => `<span><i class="dot ${k}"></i>${n} <span class="muted num">${fmtBytes(bt[k]||0)}</span></span>`).join('')}</div>`;
+
+// ---- API ----
+let token = null; try { token = localStorage.getItem('roomyHubToken'); } catch (e) {}
+async function api(path, opts = {}) {
+  const headers = Object.assign({}, opts.headers || {});
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const r = await fetch(path, Object.assign({}, opts, { headers }));
+  if (r.status === 401) { showTokenModal(); throw new Error('unauthorized'); }
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).error || m; } catch (e) {} throw new Error(m); }
+  const ct = r.headers.get('content-type') || '';
+  return ct.includes('json') ? r.json() : r.text();
+}
+function showTokenModal() { $('#modal').style.display = 'grid'; $('#tokeninput').focus(); }
+$('#tokenbtn').onclick = showTokenModal;
+$('#tokencancel').onclick = () => { $('#modal').style.display = 'none'; };
+$('#tokensave').onclick = () => {
+  token = $('#tokeninput').value.trim() || null;
+  try { token ? localStorage.setItem('roomyHubToken', token) : localStorage.removeItem('roomyHubToken'); } catch (e) {}
+  $('#modal').style.display = 'none'; load();
+};
+$('#tokeninput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#tokensave').click(); });
+
+// ---- tooltip ----
+const tip = $('#tip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = 'block'; moveTip(e); }
+function moveTip(e) { const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 10); const y = Math.min(e.clientY + 14, window.innerHeight - tip.offsetHeight - 10); tip.style.left = x + 'px'; tip.style.top = y + 'px'; }
+function hideTip() { tip.style.display = 'none'; }
+document.addEventListener('mouseover', e => { const t = e.target.closest('[data-tip]'); if (t) showTip(e, t.dataset.tip); });
+document.addEventListener('mousemove', e => { if (tip.style.display === 'block') { const t = e.target.closest('[data-tip]'); if (t) moveTip(e); else hideTip(); } });
+document.addEventListener('mouseout', e => { if (e.target.closest && e.target.closest('[data-tip]') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('[data-tip]'))) hideTip(); });
+
+// ---- state & routing ----
+const state = { summary: null, hosts: null, info: null, filter: { q: '', status: 'all', platform: 'all' }, sort: { key: 'reclaimable', dir: -1 } };
+function route() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [view, ...rest] = h.split('/');
+  return { view: view || 'overview', arg: decodeURIComponent(rest.join('/') || '') };
+}
+window.addEventListener('hashchange', render);
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) location.hash = '#/' + b.dataset.view; });
+$('#refresh').onclick = load;
+
+async function load() {
+  try {
+    const [summary, hosts, info] = await Promise.all([api('/api/v1/summary'), api('/api/v1/hosts'), api('/api/v1/info')]);
+    state.summary = summary; state.hosts = hosts.hosts; state.info = info; state.loadedAt = Date.now();
+    $('#updated').textContent = 'updated ' + new Date().toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    renderLicense(summary.license);
+    render();
+  } catch (e) {
+    if (e.message !== 'unauthorized') $('#main').innerHTML = `<div class="empty">Could not load: ${esc(e.message)}</div>`;
+  }
+}
+function renderLicense(l) {
+  const el = $('#license');
+  if (!l) { el.textContent = ''; return; }
+  const over = l.hostsOverLimit && l.hostsOverLimit.length;
+  el.className = 'badge ' + (over ? 'warn' : l.edition === 'fleet' ? 'fleet' : '');
+  el.innerHTML = l.edition === 'fleet'
+    ? `Fleet${l.org ? ' · ' + esc(l.org) : ''} · <span class="num">${l.hostsKnown}/${l.maxHosts}</span> hosts`
+    : `Community · <span class="num">${l.hostsKnown}/${l.maxHosts}</span> hosts${over ? ' · ' + over + ' over' : ''}`;
+  el.dataset.tip = over ? `<b>${over} host(s) beyond the allowance.</b><span class="muted">Their reports are still shown; new hosts are refused until a larger license is installed.</span>` : (l.expiresAt ? `License expires ${fmtDate(l.expiresAt)}` : 'Up to ' + l.maxHosts + ' hosts without a license');
+}
+
+function render() {
+  const { view, arg } = route();
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === view || (view === 'host' && b.dataset.view === 'hosts')));
+  if (!state.summary) return;
+  const main = $('#main');
+  if (view === 'hosts') main.innerHTML = viewHosts();
+  else if (view === 'host') { main.innerHTML = '<div class="empty">Loading host…</div>'; viewHost(arg).then(h => { if (route().view === 'host') main.innerHTML = h; drawHostCharts(); }); return; }
+  else if (view === 'policies') { main.innerHTML = '<div class="empty">Loading policies…</div>'; viewPolicies(arg).then(h => { if (route().view === 'policies') main.innerHTML = h; }); return; }
+  else if (view === 'activity') { main.innerHTML = '<div class="empty">Loading activity…</div>'; viewActivity().then(h => { if (route().view === 'activity') main.innerHTML = h; }); return; }
+  else main.innerHTML = viewOverview();
+  if (view === 'overview') drawOverviewCharts();
+  if (view === 'hosts') wireHostsToolbar();
+}
+
+// ---- overview ----
+function viewOverview() {
+  const s = state.summary, bs = s.hostsByStatus || {};
+  const hostsSub = `<span><i class="dot ok"></i>${bs.healthy||0} healthy</span><span><i class="dot attention"></i>${bs.attention||0} attention</span><span><i class="dot stale"></i>${bs.stale||0} stale</span>`;
+  const lowest = s.lowestDisk && s.lowestDisk[0];
+  const kpis = `
+  <section class="grid kpis">
+    <div class="card kpi"><div class="label">Hosts reporting</div><div class="value num">${s.hosts}${s.hostsDryRun ? `<small>${s.hostsDryRun} dry run</small>` : ''}</div><div class="sub">${hostsSub}</div></div>
+    <div class="card kpi"><div class="label">Reclaimable now</div><div class="value num">${fmtBytes(s.reclaimableBytes)}</div>${stackHTML(s.bytesByTier||{})}<div class="sub" style="margin-top:6px">${legendHTML(s.bytesByTier||{})}</div></div>
+    <div class="card kpi"><div class="label">Freed in the last 24 h</div><div class="value num">${fmtBytes(s.disposedBytesLast24h)}</div><div class="sub"><span class="num">${fmtBytes(s.disposedBytesLast7d)} in 7 days</span><span class="num muted">${fmtBytes(s.disposedBytesTotal)} all-time</span></div></div>
+    <div class="card kpi"><div class="label">Disk pressure</div><div class="value num">${s.hostsLowDisk}<small>host${s.hostsLowDisk === 1 ? '' : 's'} under 10% free</small></div><div class="sub">${lowest ? `<span>Lowest: <a href="#/host/${encodeURIComponent(lowest.host)}" class="hostlink">${esc(lowest.host)}</a> <span class="num">${pct(lowest.freeFraction)} free</span></span>` : '<span class="faint">No volume data</span>'}</div></div>
+    <div class="card kpi"><div class="label">Held in quarantine</div><div class="value num">${fmtBytes(s.quarantineBytes)}</div><div class="sub"><span class="num">${fmtNum(s.runsTotal)} runs</span><span class="num ${s.failuresLast24h ? '' : 'muted'}" style="${s.failuresLast24h ? 'color:var(--attention)' : ''}">${s.failuresLast24h} failure${s.failuresLast24h === 1 ? '' : 's'} / 24 h</span></div></div>
+  </section>`;
+  const attention = state.hosts.filter(h => h.status !== 'healthy').sort((a, b) => (a.status === 'attention' ? 0 : 1) - (b.status === 'attention' ? 0 : 1));
+  return kpis + `
+  <section class="grid three-two" style="margin-top:14px">
+    <div class="card"><h3>Freed per day <span class="hint">last 14 days · all hosts · <i class="dot" style="background:var(--danger);width:6px;height:6px"></i>day with failures</span></h3><svg class="chart" id="trend"></svg></div>
+    <div class="card"><h3>Reclaimable by category</h3><div class="bars" id="cats">${barsHTML(Object.entries(s.bytesByCategory||{}).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v]) => ({name: catName(k), bytes: v})), s.reclaimableBytes)}</div></div>
+  </section>
+  <section class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Hosts with the most to reclaim <span class="hint">by tier</span></h3>${hostBarsHTML(s.topReclaimable)}<div style="margin-top:10px">${legendHTML(s.bytesByTier||{})}</div></div>
+    <div class="card"><h3>Largest findings across the fleet <span class="hint">from each host's top items</span></h3>
+      <table><thead><tr><th>Finding</th><th>Tier</th><th class="r">Hosts</th><th class="r">Size</th></tr></thead><tbody>
+      ${(s.topRules||[]).slice(0,10).map(r => `<tr><td>${esc(r.label)}<div class="faint" style="font-size:11.5px">${esc(catName(r.category))}</div></td><td><span class="chip ${r.tier}">${tierName(r.tier)}</span></td><td class="r num">${r.hosts}</td><td class="r num">${fmtBytes(r.bytes)}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">No findings yet</td></tr>'}
+      </tbody></table></div>
+  </section>
+  <section class="grid two-three" style="margin-top:14px">
+    <div class="card"><h3>Needs attention <span class="hint">${attention.length} host${attention.length === 1 ? '' : 's'}</span></h3>
+      ${attention.length ? `<table><tbody>${attention.slice(0, 8).map(h => `<tr class="row" data-host="${esc(h.host)}"><td><span class="hostname">${esc(h.host)}</span><div class="reasons">${esc((h.statusReasons||[]).join(' · '))}</div></td><td class="r">${statusHTML(h.status)}</td><td class="r faint num" style="white-space:nowrap">${ago(h.lastSeen)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty" style="padding:24px">Every host is healthy</div>'}
+    </div>
+    <div class="card"><h3>Recent runs</h3>
+      <table><thead><tr><th>Host</th><th>When</th><th>Result</th><th class="r">Removed</th><th class="r">Reclaimable</th></tr></thead><tbody>
+      ${(s.recentRuns||[]).slice(0,10).map(r => `<tr class="row" data-host="${esc(r.host)}"><td class="hostname">${esc(r.host)}</td><td class="muted num">${ago(r.startedAt)}</td><td>${r.dryRun ? '<span class="chip dry">DRY RUN</span>' : r.failures ? `<span class="status attention">${STATUS_ICON.attention}${r.failures} failed</span>` : `<span class="status healthy">${STATUS_ICON.healthy}ok</span>`}</td><td class="r num">${r.disposedItems ? fmtBytes(r.disposedBytes) + ` <span class="faint">· ${r.disposedItems}</span>` : '<span class="faint">–</span>'}</td><td class="r num muted">${fmtBytes(r.reclaimableBytes)}</td></tr>`).join('')}
+      </tbody></table></div>
+  </section>
+  <div class="footer"><span>Roomy Hub __ROOMY_VERSION__</span><span>${s.hosts} hosts · ${Object.keys(s.hostsByPolicy||{}).length} policies · ${Object.entries(s.hostsByVersion||{}).map(([v,n]) => `${n}× v${esc(v)}`).join(', ')}</span></div>`;
+}
+function barsHTML(rows, total) {
+  const max = Math.max(...rows.map(r => r.bytes), 1);
+  return rows.map(r => `<div class="bar-row" data-tip="<b>${esc(r.name)}</b><span class='muted'>${fmtBytes(r.bytes)} · ${pct(r.bytes/(total||1))} of reclaimable</span>"><span class="name">${esc(r.name)}</span><div class="track"><span style="width:${r.bytes/max*100}%"></span></div><span class="val num">${fmtBytes(r.bytes)}</span></div>`).join('') || '<div class="empty">No data</div>';
+}
+function hostBarsHTML(top) {
+  const byHost = Object.fromEntries(state.hosts.map(h => [h.host, h]));
+  const max = Math.max(...(top||[]).map(t => t.bytes), 1);
+  return `<div class="bars">${(top||[]).map(t => { const h = byHost[t.host]; const bt = (h && h.latest.bytesByTier) || {}; const w = t.bytes / max * 100;
+    return `<div class="bar-row" data-tip="<b>${esc(t.host)}</b><span class='muted'>${TIERS.map(([k,n]) => n + ' ' + fmtBytes(bt[k]||0)).join(' · ')}</span>"><a class="name" href="#/host/${encodeURIComponent(t.host)}">${esc(t.host)}</a><div class="track" style="width:${w}%">${TIERS.map(([k]) => `<span class="${k}" style="flex:${(bt[k]||0)}"></span>`).join('')}</div><span class="val num">${fmtBytes(t.bytes)}</span></div>`; }).join('')}</div>`;
+}
+function drawOverviewCharts() {
+  const svg = $('#trend'); if (!svg) return;
+  const data = state.summary.trend || [];
+  columnChart(svg, data.map(d => ({ x: d.day.slice(5), v: d.disposedBytes, fail: d.failures, runs: d.runs, day: d.day })));
+}
+function columnChart(svg, data) {
+  const W = svg.clientWidth || 600, H = 190, padL = 44, padR = 8, padT = 18, padB = 24;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const empty = data.every(d => d.v <= 0);
+  const max = Math.max(...data.map(d => d.v), 1);
+  const nice = empty ? 1024 ** 3 : niceMax(max);   // an empty chart still gets a readable axis
+  const x = i => padL + (i + 0.5) * (W - padL - padR) / data.length;
+  const y = v => padT + (H - padT - padB) * (1 - v / nice);
+  const slot = (W - padL - padR) / data.length, bw = Math.min(24, slot * 0.6);
+  let out = '<g class="grid">';
+  for (let i = 0; i <= 3; i++) { const v = nice * i / 3; out += `<line x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${fmtBytes(v, 0)}</text>`; }
+  out += '</g>';
+  const maxI = data.reduce((m, d, i) => d.v > data[m].v ? i : m, 0);
+  const labelStep = Math.max(1, Math.ceil(data.length / 7));
+  data.forEach((d, i) => {
+    const h = Math.max(0, y(0) - y(d.v));
+    out += `<g data-tip="<b>${esc(d.day)}</b><span class='muted'>${fmtBytes(d.v)} freed · ${d.runs} run${d.runs === 1 ? '' : 's'}${d.fail ? ' · ' + d.fail + ' failure' + (d.fail === 1 ? '' : 's') : ''}</span>"><rect x="${x(i) - slot/2}" y="${padT}" width="${slot}" height="${H - padT - padB}" fill="transparent"/><path class="col" d="${roundTop(x(i) - bw/2, y(d.v), bw, h, 4)}" fill="var(--accent)"/>${d.fail ? `<circle cx="${x(i)}" cy="${H - padB + 4}" r="2.5" fill="var(--danger)"/>` : ''}</g>`;
+    if (i % labelStep === 0 || i === data.length - 1) out += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${esc(d.x)}</text>`;
+    if ((i === maxI || i === data.length - 1) && d.v > 0) out += `<text class="label" x="${x(i)}" y="${y(d.v) - 5}" text-anchor="middle">${fmtBytes(d.v)}</text>`;
+  });
+  svg.innerHTML = out;
+}
+function roundTop(x, y, w, h, r) { if (h <= 0) return ''; r = Math.min(r, h, w / 2); return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`; }
+function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v))); const m = v / p; const n = m <= 1 ? 1 : m <= 2 ? 2 : m <= 3 ? 3 : m <= 5 ? 5 : 10; return n * p; }
+function lineChart(svg, pts, opts = {}) {
+  const W = svg.clientWidth || 600, H = 190, padL = 48, padR = 10, padT = 14, padB = 22;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  if (pts.length < 2) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Not enough history yet</text>`; return; }
+  const max = niceMax(Math.max(...pts.map(p => p.v), 1));
+  const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+  const x = t => padL + (W - padL - padR) * ((t - t0) / Math.max(1, t1 - t0));
+  const y = v => padT + (H - padT - padB) * (1 - v / max);
+  let out = '<g class="grid">';
+  for (let i = 0; i <= 3; i++) { const v = max * i / 3; out += `<line x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${opts.fmt ? opts.fmt(v) : fmtBytes(v, 0)}</text>`; }
+  out += '</g>';
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ',' + y(p.v).toFixed(1)).join(' ');
+  out += `<path class="area" d="${d} L${x(t1)},${y(0)} L${x(t0)},${y(0)} Z"/><path class="line" d="${d}"/>`;
+  const last = pts[pts.length - 1];
+  out += `<circle class="pt" cx="${x(last.t)}" cy="${y(last.v)}" r="4"/><text class="label" x="${x(last.t) - 6}" y="${y(last.v) - 8}" text-anchor="end">${opts.fmt ? opts.fmt(last.v) : fmtBytes(last.v)}</text>`;
+  const days = Math.round((t1 - t0) / 86400000);
+  [t0, (t0 + t1) / 2, t1].forEach((t, i) => out += `<text x="${x(t)}" y="${H - 5}" text-anchor="${i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}">${new Date(t).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</text>`);
+  // hover columns
+  pts.forEach((p, i) => { const x0 = i ? (x(pts[i-1].t) + x(p.t)) / 2 : padL; const x1 = i < pts.length - 1 ? (x(p.t) + x(pts[i+1].t)) / 2 : W - padR;
+    out += `<rect x="${x0}" y="${padT}" width="${Math.max(0, x1 - x0)}" height="${H - padT - padB}" fill="transparent" data-tip="<b>${fmtDate(new Date(p.t).toISOString())}</b><span class='muted'>${opts.fmt ? opts.fmt(p.v) : fmtBytes(p.v)}${p.extra ? ' · ' + esc(p.extra) : ''}</span>"/>`; });
+  void days;
+  svg.innerHTML = out;
+}
+function sparkline(history, w = 90, h = 22) {
+  const pts = (history || []).slice(-40);
+  if (pts.length < 2) return '';
+  const vs = pts.map(p => p.reclaimableBytes); const max = Math.max(...vs, 1), min = Math.min(...vs);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + (i / (pts.length - 1) * w).toFixed(1) + ',' + (h - 2 - (h - 4) * ((p.reclaimableBytes - min) / Math.max(1, max - min))).toFixed(1)).join(' ');
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+}
+
+// ---- hosts ----
+function filteredHosts() {
+  const f = state.filter, q = f.q.toLowerCase();
+  let rows = state.hosts.filter(h => (f.status === 'all' || h.status === f.status) && (f.platform === 'all' || h.latest.platform === f.platform)
+    && (!q || h.host.toLowerCase().includes(q) || h.latest.policyName.toLowerCase().includes(q) || Object.entries(h.latest.tags||{}).some(([k,v]) => (k+':'+v).toLowerCase().includes(q))));
+  const k = state.sort.key, dir = state.sort.dir;
+  const val = h => k === 'host' ? h.host : k === 'status' ? ['attention','stale','healthy'].indexOf(h.status) : k === 'reclaimable' ? h.latest.reclaimableBytes : k === 'freed' ? h.latest.disposedBytesTotal
+    : k === 'disk' ? (h.latest.volumeTotalBytes ? h.latest.volumeAvailableBytes / h.latest.volumeTotalBytes : 9) : k === 'seen' ? new Date(h.lastSeen).getTime() : h.latest.policyName;
+  rows.sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : 0) * dir; });
+  return rows;
+}
+function viewHosts() {
+  const platforms = [...new Set(state.hosts.map(h => h.latest.platform))];
+  const rows = filteredHosts();
+  const th = (key, label, right) => `<th class="${right ? 'r' : ''}" data-sort="${key}" style="cursor:pointer">${label}${state.sort.key === key ? (state.sort.dir < 0 ? ' ↓' : ' ↑') : ''}</th>`;
+  return `
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Search host, policy, tag…" value="${esc(state.filter.q)}" />
+    <div class="filters" id="statusf">${['all','healthy','attention','stale'].map(s => `<button data-s="${s}" class="${state.filter.status === s ? 'on' : ''}">${s === 'all' ? 'All' : s[0].toUpperCase() + s.slice(1)} <span class="muted num">${s === 'all' ? state.hosts.length : state.hosts.filter(h => h.status === s).length}</span></button>`).join('')}</div>
+    <div class="filters" id="platf">${['all', ...platforms].map(p => `<button data-p="${p}" class="${state.filter.platform === p ? 'on' : ''}">${p === 'all' ? 'Any platform' : p}</button>`).join('')}</div>
+    <span class="muted" style="margin-left:auto">${rows.length} of ${state.hosts.length} hosts</span>
+  </div>
+  <div class="card" style="padding:0 0 4px">
+  <table><thead><tr>${th('host','Host')}${th('status','Status')}${th('policy','Policy')}${th('reclaimable','Reclaimable', true)}${th('freed','Freed', true)}${th('disk','Disk free')}<th>Trend</th>${th('seen','Last report', true)}</tr></thead><tbody>
+  ${rows.map(h => { const r = h.latest; const free = r.volumeTotalBytes ? r.volumeAvailableBytes / r.volumeTotalBytes : null;
+    return `<tr class="row" data-host="${esc(h.host)}">
+      <td><span class="hostname">${esc(h.host)}</span><div class="tags"><span class="chip plat">${esc(r.platform)} · ${esc(r.roomyVersion)}</span>${Object.entries(r.tags||{}).map(([k,v]) => `<span class="chip tag">${esc(k)}: ${esc(v)}</span>`).join('')}</div></td>
+      <td>${statusHTML(h.status)}${h.statusReasons && h.statusReasons.length ? `<div class="reasons">${esc(h.statusReasons.join(' · '))}</div>` : ''}</td>
+      <td>${esc(r.policyName)}${r.dryRun ? ' <span class="chip dry">DRY RUN</span>' : ''}<div class="faint" style="font-size:11.5px">${esc(r.edition)}${r.org ? ' · ' + esc(r.org) : ''}</div></td>
+      <td class="r num">${fmtBytes(r.reclaimableBytes)}<div style="width:120px;margin-left:auto">${stackHTML(r.bytesByTier||{})}</div></td>
+      <td class="r num">${fmtBytes(r.disposedBytesTotal)}<div class="faint" style="font-size:11.5px">${r.disposedItems > 0 ? fmtBytes(r.disposedBytes) + ' last run' : r.dryRun ? 'dry run' : 'nothing last run'}</div></td>
+      <td>${free == null ? '<span class="faint">–</span>' : `<span class="meter ${free < 0.1 ? 'low' : free < 0.2 ? 'mid' : ''}"><span style="width:${Math.min(100, free*100)}%"></span></span><span class="num">${pct(free)}</span><div class="faint" style="font-size:11.5px">${fmtBytes(r.volumeAvailableBytes)} of ${fmtBytes(r.volumeTotalBytes)}</div>`}</td>
+      <td>${sparkline(h.history)}</td>
+      <td class="r num muted" style="white-space:nowrap">${ago(h.lastSeen)}</td></tr>`; }).join('') || `<tr><td colspan="8" class="empty">No hosts match</td></tr>`}
+  </tbody></table></div>`;
+}
+function wireHostsToolbar() {
+  const q = $('#q'); if (q) q.oninput = () => { state.filter.q = q.value; const pos = q.selectionStart; $('#main').innerHTML = viewHosts(); wireHostsToolbar(); const nq = $('#q'); nq.focus(); nq.setSelectionRange(pos, pos); };
+  $('#statusf').onclick = e => { const b = e.target.closest('button'); if (b) { state.filter.status = b.dataset.s; render(); } };
+  $('#platf').onclick = e => { const b = e.target.closest('button'); if (b) { state.filter.platform = b.dataset.p; render(); } };
+  document.querySelectorAll('th[data-sort]').forEach(t => t.onclick = () => { const k = t.dataset.sort; state.sort = { key: k, dir: state.sort.key === k ? -state.sort.dir : (k === 'host' || k === 'policy' || k === 'status' || k === 'disk' ? 1 : -1) }; render(); });
+}
+document.addEventListener('click', e => { const r = e.target.closest('tr.row[data-host]'); if (r && !e.target.closest('a')) location.hash = '#/host/' + encodeURIComponent(r.dataset.host); });
+
+// ---- host detail ----
+let currentHost = null;
+async function viewHost(name) {
+  let h; try { h = await api('/api/v1/hosts/' + encodeURIComponent(name)); } catch (e) { return `<a class="back" href="#/hosts">← Hosts</a><div class="empty">${esc(e.message)}</div>`; }
+  currentHost = h;
+  const r = h.latest, free = r.volumeTotalBytes ? r.volumeAvailableBytes / r.volumeTotalBytes : null;
+  const skipped = Object.entries(r.skippedByReason || {}).sort((a, b) => b[1] - a[1]);
+  return `
+  <a class="back" href="#/hosts">← Hosts</a>
+  <div class="detail-head">
+    <div>
+      <h2>${esc(h.host)} ${statusHTML(h.status)} ${r.dryRun ? '<span class="chip dry">DRY RUN</span>' : ''}</h2>
+      <div class="meta"><span class="chip plat">${esc(r.platform)} · roomy ${esc(r.roomyVersion)} · catalog ${esc(r.catalogVersion)}</span><span>policy <b>${esc(r.policyName)}</b></span><span>${esc(r.edition)}${r.org ? ' · ' + esc(r.org) : ''}</span>${Object.entries(r.tags||{}).map(([k,v]) => `<span class="chip tag">${esc(k)}: ${esc(v)}</span>`).join('')}</div>
+      ${h.statusReasons && h.statusReasons.length ? `<div class="reasons" style="margin-top:6px">${esc(h.statusReasons.join(' · '))}</div>` : ''}
+      ${h.note ? `<div class="note">${esc(h.note)}</div>` : ''}
+    </div>
+    <div class="actions"><button class="btn" id="notebtn">${h.note ? 'Edit note' : 'Add note'}</button><button class="btn danger" id="removebtn">Remove from inventory</button></div>
+  </div>
+  <section class="grid kpis">
+    <div class="card kpi"><div class="label">Reclaimable now</div><div class="value num">${fmtBytes(r.reclaimableBytes)}</div>${stackHTML(r.bytesByTier||{})}<div class="sub" style="margin-top:6px">${legendHTML(r.bytesByTier||{})}</div></div>
+    <div class="card kpi"><div class="label">Freed by Roomy</div><div class="value num">${fmtBytes(r.disposedBytesTotal)}</div><div class="sub"><span class="num">${fmtNum(r.disposedItemsTotal)} items · ${fmtNum(r.runsTotal)} runs</span></div></div>
+    <div class="card kpi"><div class="label">Last run</div><div class="value num">${r.disposedItems ? fmtBytes(r.disposedBytes) : '0 B'}<small>${r.dryRun ? 'would remove' : 'removed'}</small></div><div class="sub"><span>${ago(r.startedAt)} · ${r.durationSeconds.toFixed(1)}s</span>${r.failures ? `<span style="color:var(--attention)">${r.failures} failed</span>` : ''}</div></div>
+    <div class="card kpi"><div class="label">Disk free</div><div class="value num">${free == null ? '–' : pct(free)}</div><div class="sub">${free == null ? '<span class="faint">No volume data</span>' : `<span class="num">${fmtBytes(r.volumeAvailableBytes)} of ${fmtBytes(r.volumeTotalBytes)}</span>`}</div></div>
+    <div class="card kpi"><div class="label">Quarantine</div><div class="value num">${fmtBytes(r.quarantineBytes)}</div><div class="sub"><span class="num">${r.quarantineItems} items</span><span class="muted">released after retention</span></div></div>
+  </section>
+  <section class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Reclaimable over time <span class="hint">${h.history.length} reports</span></h3><svg class="chart" id="h-recl"></svg></div>
+    <div class="card"><h3>Freed per run</h3><svg class="chart" id="h-freed"></svg></div>
+  </section>
+  <section class="grid three-two" style="margin-top:14px">
+    <div class="card"><h3>Largest findings <span class="hint">${r.topItems.length} of ${fmtNum(r.findings)} · what the policy may and may not touch</span></h3>
+      <table><thead><tr><th>Path</th><th>Tier</th><th>Category</th><th class="r">Idle</th><th class="r">Size</th></tr></thead><tbody>
+      ${r.topItems.map(i => `<tr><td><span class="mono" style="word-break:break-all">${esc(i.path)}</span><div class="faint" style="font-size:11.5px">${esc(i.label)}${i.ruleID ? ' · ' + esc(i.ruleID) : ''}</div></td><td><span class="chip ${i.tier}">${tierName(i.tier)}</span></td><td class="muted">${esc(catName(i.category))}</td><td class="r num muted">${i.idleDays == null ? '–' : i.idleDays + 'd'}</td><td class="r num">${fmtBytes(i.bytes)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">No items reported</td></tr>'}
+      </tbody></table></div>
+    <div style="display:grid;gap:14px;align-content:start">
+      <div class="card"><h3>Why items were skipped <span class="hint">last run</span></h3>${skipped.length ? `<div class="bars">${skipped.map(([k, v]) => `<div class="bar-row" style="grid-template-columns: 170px 1fr 50px"><span class="name">${esc(k)}</span><div class="track"><span style="width:${v / skipped[0][1] * 100}%"></span></div><span class="val num">${v}</span></div>`).join('')}</div>` : '<div class="faint">Nothing skipped</div>'}</div>
+      <div class="card"><h3>Facts</h3><dl class="kv">
+        <dt>First seen</dt><dd>${fmtDate(h.firstSeen)}</dd><dt>Last report</dt><dd>${fmtDate(h.lastSeen)} <span class="faint">(${ago(h.lastSeen)})</span></dd>
+        <dt>Reports received</dt><dd class="num">${fmtNum(h.reports)}</dd><dt>Run interval</dt><dd>${r.intervalSeconds ? (r.intervalSeconds / 3600).toFixed(r.intervalSeconds % 3600 ? 1 : 0) + ' h' : 'unknown'}</dd>
+        <dt>Audit log head</dt><dd class="num">seq ${fmtNum(r.auditSeq)}${r.auditHeadHash ? ` <span class="mono faint" title="${esc(r.auditHeadHash)}">${esc(r.auditHeadHash.slice(0, 16))}…</span>` : ''}</dd>
+        <dt>Planned last run</dt><dd class="num">${r.plannedItems} items · ${fmtBytes(r.plannedBytes)}</dd><dt>Purged last run</dt><dd class="num">${r.purgedItems} items · ${fmtBytes(r.purgedBytes)}</dd>
+        <dt>License</dt><dd>${esc(r.edition)}${r.licenseExpiresAt ? ' · expires ' + fmtDate(r.licenseExpiresAt) : ''}</dd>
+        <dt>Last run id</dt><dd class="mono faint">${esc(r.runID)}</dd>
+      </dl></div>
+    </div>
+  </section>`;
+}
+function drawHostCharts() {
+  const h = currentHost; if (!h) return;
+  const recl = $('#h-recl'), freed = $('#h-freed'); if (!recl || !freed) return;
+  const pts = h.history.map(p => ({ t: new Date(p.time).getTime(), v: p.reclaimableBytes, extra: p.volumeAvailableBytes != null ? fmtBytes(p.volumeAvailableBytes) + ' free' : '' }));
+  lineChart(recl, pts);
+  const last = h.history.slice(-30);
+  columnChart(freed, last.map(p => ({ x: new Date(p.time).toLocaleDateString(undefined, {month:'numeric', day:'numeric'}), v: p.dryRun ? 0 : p.disposedBytes, fail: p.failures, runs: 1, day: fmtDate(p.time) + (p.dryRun ? ' · dry run' : '') })));
+  $('#removebtn').onclick = async () => { if (!confirm(`Remove ${h.host} from the inventory? It reappears on its next report.`)) return; try { await api('/api/v1/hosts/' + encodeURIComponent(h.host), { method: 'DELETE' }); location.hash = '#/hosts'; load(); } catch (e) { alert(e.message); } };
+  $('#notebtn').onclick = async () => { const n = prompt('Note for ' + h.host, h.note || ''); if (n === null) return; try { await api('/api/v1/hosts/' + encodeURIComponent(h.host) + '/note', { method: 'PUT', body: n, headers: { 'Content-Type': 'text/plain' } }); load(); } catch (e) { alert(e.message); } };
+}
+
+// ---- policies ----
+async function viewPolicies(selected) {
+  let names = []; try { names = (await api('/api/v1/policies')).policies; } catch (e) { return `<div class="empty">${esc(e.message)}</div>`; }
+  const used = state.summary.hostsByPolicy || {};
+  const all = [...new Set([...names, ...Object.keys(used)])].sort();
+  const sel = selected || names[0];
+  let body = '';
+  if (sel && names.includes(sel)) { try { const d = await api('/api/v1/policies/' + encodeURIComponent(sel)); body = `<pre class="json">${esc(JSON.stringify(d, null, 2))}</pre>`; } catch (e) { body = `<div class="empty">${esc(e.message)}</div>`; } }
+  else body = `<div class="empty">${names.length ? 'Select a policy' : 'No hub-managed policies yet.'}<div class="mono" style="margin-top:12px">roomy hub policy push ${esc(sel || 'agent-host')} policy.json --url ${esc(location.origin)}</div><div class="muted" style="margin-top:8px">Hosts pull it before each run when their local policy sets <span class="mono">hub.policy</span>.</div></div>`;
+  return `<section class="grid two-three">
+    <div class="card" style="padding:6px 0"><table><thead><tr><th>Policy</th><th class="r">Hosts</th><th class="r">Managed</th></tr></thead><tbody>
+    ${all.map(n => `<tr class="row" style="${n === sel ? 'background:var(--bg-3)' : ''}" onclick="location.hash='#/policies/${encodeURIComponent(n)}'"><td class="hostname">${esc(n)}</td><td class="r num">${used[n] || 0}</td><td class="r">${names.includes(n) ? '<span class="status healthy">' + STATUS_ICON.healthy + 'hub</span>' : '<span class="faint">local files</span>'}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">No policies</td></tr>'}
+    </tbody></table></div>
+    <div class="card"><h3>${esc(sel || 'Policy')} <span class="hint">${names.includes(sel) ? 'served to agents at /api/v1/policies/' + esc(sel) : ''}</span></h3>${body}</div>
+  </section>`;
+}
+
+// ---- activity ----
+async function viewActivity() {
+  let ev = []; try { ev = (await api('/api/v1/events?n=200')).events; } catch (e) { return `<div class="empty">${esc(e.message)}</div>`; }
+  const kindName = { reportReceived: 'report', reportRejected: 'rejected', hostRemoved: 'host removed', policyUpdated: 'policy', policyRemoved: 'policy removed', noteUpdated: 'note', hubStarted: 'hub' };
+  return `<div class="card"><h3>Activity <span class="hint">last ${ev.length} events</span></h3><div class="events">
+    ${ev.map(e => `<div class="event"><span class="muted num">${fmtDate(e.time)}</span><span class="kind">${esc(kindName[e.kind] || e.kind)}</span><span>${e.host ? `<a class="hostname" href="#/host/${encodeURIComponent(e.host)}">${esc(e.host)}</a> · ` : ''}${esc(e.message)}</span><span class="num muted">${e.bytes ? fmtBytes(e.bytes) : ''}</span></div>`).join('') || '<div class="empty">No events yet</div>'}
+  </div></div>`;
+}
+
+load();
+setInterval(() => { if (document.visibilityState === 'visible') load(); }, 30000);
+window.addEventListener('resize', () => { const v = route().view; if (v === 'overview') drawOverviewCharts(); if (v === 'host') drawHostCharts(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  package-macos:
+    name: Package · macOS
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: { xcode-version: latest-stable }
+      - name: Build & test package
+        working-directory: RoomyCore
+        run: |
+          swift build --build-tests
+          swift test
+      - name: CLI smoke
+        working-directory: RoomyCore
+        run: |
+          .build/debug/roomy version
+          .build/debug/roomy rules --json | head -c 300
+          .build/debug/roomy doctor
+
+  package-linux:
+    name: Package · Linux (${{ matrix.image }})
+    runs-on: ubuntu-24.04
+    container: ${{ matrix.image }}
+    strategy:
+      matrix:
+        image: ["swift:6.1-noble", "swift:6.0-jammy"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & test package
+        working-directory: RoomyCore
+        run: |
+          swift build --build-tests
+          swift test
+      - name: Static release binary
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends binutils
+          packaging/scripts/build-linux.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: roomy-linux-${{ matrix.image }}
+          path: dist/linux/
+
+  app-macos:
+    name: Mac app
+    if: github.repository != 'tdermendjiev/Roomy'   # the app is not in the public repo
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: { xcode-version: latest-stable }
+      - name: Build app (Debug, no signing)
+        run: |
+          xcodebuild -project Roomy.xcodeproj -scheme Roomy -configuration Debug -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO build | tail -5
+      - name: Unit tests
+        run: |
+          xcodebuild -project Roomy.xcodeproj -scheme Roomy -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO -only-testing:RoomyTests test | tail -20
+
+  rules-and-docs:
+    name: Rule catalog & docs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate catalog JSON
+        run: python3 -c "import json; json.load(open('RoomyCore/Sources/RoomyCore/Rules/builtin-rules.json')); print('catalog ok')"
+      - name: Validate example policy
+        run: python3 -c "import json; json.load(open('packaging/config/policy.agent-host.json')); print('policy ok')"
+      - name: SBOM generates
+        run: packaging/scripts/sbom.py 0.0.0 | head -c 400

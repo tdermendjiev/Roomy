@@ -1,0 +1,24 @@
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# Node (firebase-tools for deploy)
+node_modules/
+
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+
+# Swift package build output
+RoomyCore/.build/
+RoomyCore/.swiftpm/
+
+# Release artifacts
+dist/
+
+# Never commit license signing keys
+*.signing.key
+license-signing.key

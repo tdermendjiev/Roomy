@@ -1,0 +1,1424 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026.10.27",
+  "projectRules": [
+    {
+      "id": "node_modules",
+      "folderName": "node_modules",
+      "label": "node_modules",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "npm install / pnpm install / yarn"
+    },
+    {
+      "id": "pnpm-store-local",
+      "folderName": ".pnpm-store",
+      "label": ".pnpm-store",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "pnpm install"
+    },
+    {
+      "id": "next",
+      "folderName": ".next",
+      "label": ".next",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "next build"
+    },
+    {
+      "id": "nuxt",
+      "folderName": ".nuxt",
+      "label": ".nuxt",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "nuxt build"
+    },
+    {
+      "id": "svelte-kit",
+      "folderName": ".svelte-kit",
+      "label": ".svelte-kit",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on next dev/build"
+    },
+    {
+      "id": "turbo",
+      "folderName": ".turbo",
+      "label": ".turbo",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by turbo"
+    },
+    {
+      "id": "parcel-cache",
+      "folderName": ".parcel-cache",
+      "label": ".parcel-cache",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by parcel"
+    },
+    {
+      "id": "angular-cache",
+      "folderName": ".angular",
+      "label": ".angular",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by the Angular CLI"
+    },
+    {
+      "id": "nx-cache",
+      "folderName": ".nx",
+      "label": ".nx",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by nx"
+    },
+    {
+      "id": "dist",
+      "folderName": "dist",
+      "label": "dist",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "Re-run the build"
+    },
+    {
+      "id": "coverage",
+      "folderName": "coverage",
+      "label": "coverage",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "Re-run tests with coverage"
+    },
+    {
+      "id": "build",
+      "folderName": "build",
+      "label": "build",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "Re-run the build",
+      "markers": [
+        {
+          "ecosystem": "java",
+          "files": [
+            "build.gradle",
+            "build.gradle.kts"
+          ]
+        },
+        {
+          "ecosystem": "swift",
+          "files": [
+            "Package.swift"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "target",
+      "folderName": "target",
+      "label": "target/",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "cargo build / mvn package",
+      "markers": [
+        {
+          "ecosystem": "rust",
+          "files": [
+            "Cargo.toml"
+          ]
+        },
+        {
+          "ecosystem": "java",
+          "files": [
+            "pom.xml",
+            "build.gradle",
+            "build.gradle.kts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gradle-project",
+      "folderName": ".gradle",
+      "label": ".gradle",
+      "ecosystem": "java",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by Gradle"
+    },
+    {
+      "id": "pycache",
+      "folderName": "__pycache__",
+      "label": "__pycache__",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on next import"
+    },
+    {
+      "id": "dot-venv",
+      "folderName": ".venv",
+      "label": ".venv",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "python -m venv .venv && pip install -r requirements.txt"
+    },
+    {
+      "id": "venv",
+      "folderName": "venv",
+      "label": "venv",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "python -m venv venv && pip install -r requirements.txt"
+    },
+    {
+      "id": "mypy-cache",
+      "folderName": ".mypy_cache",
+      "label": ".mypy_cache",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by mypy"
+    },
+    {
+      "id": "pytest-cache",
+      "folderName": ".pytest_cache",
+      "label": ".pytest_cache",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by pytest"
+    },
+    {
+      "id": "ruff-cache",
+      "folderName": ".ruff_cache",
+      "label": ".ruff_cache",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by ruff"
+    },
+    {
+      "id": "tox",
+      "folderName": ".tox",
+      "label": ".tox",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "tox recreates environments"
+    },
+    {
+      "id": "vendor",
+      "folderName": "vendor",
+      "label": "vendor/",
+      "ecosystem": "ruby",
+      "tier": "safe",
+      "restoreHint": "go mod vendor / bundle install",
+      "markers": [
+        {
+          "ecosystem": "go",
+          "files": [
+            "go.mod"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pods",
+      "folderName": "Pods",
+      "label": "Pods",
+      "ecosystem": "swift",
+      "tier": "safe",
+      "restoreHint": "pod install",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "spm-build",
+      "folderName": ".build",
+      "label": ".build",
+      "ecosystem": "swift",
+      "tier": "safe",
+      "restoreHint": "swift build"
+    },
+    {
+      "id": "dotnet-obj",
+      "folderName": "obj",
+      "label": "obj",
+      "ecosystem": "dotnet",
+      "tier": "safe",
+      "restoreHint": "dotnet build",
+      "markers": [
+        {
+          "ecosystem": "dotnet",
+          "files": [
+            "*.csproj",
+            "*.fsproj",
+            "*.vbproj"
+          ]
+        }
+      ],
+      "requireMarker": true
+    },
+    {
+      "id": "terraform",
+      "folderName": ".terraform",
+      "label": ".terraform",
+      "ecosystem": "general",
+      "tier": "caution",
+      "restoreHint": "terraform init re-downloads providers; state stays in backend"
+    },
+    {
+      "id": "aider-tags-cache",
+      "folderName": ".aider.tags.cache.v3",
+      "label": ".aider.tags.cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Rebuilt by aider on next run"
+    },
+    {
+      "id": "crush",
+      "folderName": ".crush",
+      "label": ".crush",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Past Crush sessions for this project cannot be resumed"
+    },
+    {
+      "id": "chroma",
+      "folderName": ".chroma",
+      "label": ".chroma",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Vector index; re-embedding the source documents rebuilds it"
+    },
+    {
+      "id": "chroma_db",
+      "folderName": "chroma_db",
+      "label": "chroma_db",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Vector index; re-embedding the source documents rebuilds it"
+    },
+    {
+      "id": "lancedb",
+      "folderName": ".lancedb",
+      "label": ".lancedb",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Vector index; re-embedding the source documents rebuilds it"
+    },
+    {
+      "id": "claude-worktrees",
+      "folderName": "worktrees",
+      "parentName": ".claude",
+      "label": "Claude Code worktrees",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Agent worktrees may hold uncommitted work; check git status in each before removing"
+    }
+  ],
+  "systemRules": [
+    {
+      "id": "ollama-models",
+      "category": "aiTools",
+      "label": "Ollama models",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "ollama pull <model>",
+      "paths": {
+        "macos": [
+          ".ollama/models"
+        ],
+        "linux": [
+          ".ollama/models",
+          "/usr/share/ollama/.ollama/models"
+        ]
+      }
+    },
+    {
+      "id": "lmstudio-models",
+      "category": "aiTools",
+      "label": "LM Studio models",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-download in LM Studio",
+      "paths": {
+        "macos": [
+          ".lmstudio/models",
+          ".cache/lm-studio/models"
+        ],
+        "linux": [
+          ".lmstudio/models",
+          ".cache/lm-studio/models"
+        ]
+      }
+    },
+    {
+      "id": "hf-hub",
+      "category": "aiTools",
+      "label": "Hugging Face model cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Models re-download on next use",
+      "paths": {
+        "macos": [
+          ".cache/huggingface/hub"
+        ],
+        "linux": [
+          "$HF_HOME/hub",
+          ".cache/huggingface/hub"
+        ]
+      }
+    },
+    {
+      "id": "hf-xet",
+      "category": "aiTools",
+      "label": "Hugging Face download cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on next download",
+      "paths": {
+        "macos": [
+          ".cache/huggingface/xet"
+        ],
+        "linux": [
+          ".cache/huggingface/xet"
+        ]
+      }
+    },
+    {
+      "id": "hf-datasets",
+      "category": "aiTools",
+      "label": "Hugging Face datasets cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Datasets re-download on next use",
+      "paths": {
+        "macos": [
+          ".cache/huggingface/datasets"
+        ],
+        "linux": [
+          ".cache/huggingface/datasets"
+        ]
+      }
+    },
+    {
+      "id": "llama-cpp-cache",
+      "category": "aiTools",
+      "label": "llama.cpp model cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Models re-download on next run",
+      "paths": {
+        "macos": [
+          "Library/Caches/llama.cpp"
+        ],
+        "linux": [
+          ".cache/llama.cpp"
+        ]
+      }
+    },
+    {
+      "id": "torch-hub",
+      "category": "aiTools",
+      "label": "PyTorch Hub checkpoints",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-downloaded by torch.hub on next use",
+      "paths": {
+        "macos": [
+          ".cache/torch/hub"
+        ],
+        "linux": [
+          ".cache/torch/hub"
+        ]
+      }
+    },
+    {
+      "id": "whisper-models",
+      "category": "aiTools",
+      "label": "Whisper models",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-downloaded on next transcription",
+      "paths": {
+        "macos": [
+          ".cache/whisper"
+        ],
+        "linux": [
+          ".cache/whisper"
+        ]
+      }
+    },
+    {
+      "id": "vllm-cache",
+      "category": "aiTools",
+      "label": "vLLM cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on next run",
+      "paths": {
+        "macos": [
+          ".cache/vllm"
+        ],
+        "linux": [
+          ".cache/vllm"
+        ]
+      }
+    },
+    {
+      "id": "gpt4all",
+      "category": "aiTools",
+      "label": "GPT4All models & chats",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Models re-download; chat history is lost",
+      "paths": {
+        "macos": [
+          "Library/Application Support/nomic.ai/GPT4All"
+        ],
+        "linux": [
+          ".local/share/nomic.ai/GPT4All"
+        ]
+      }
+    },
+    {
+      "id": "jan",
+      "category": "aiTools",
+      "label": "Jan models & threads",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Models re-download; threads are lost",
+      "paths": {
+        "macos": [
+          "Library/Application Support/Jan"
+        ],
+        "linux": [
+          ".config/Jan"
+        ]
+      }
+    },
+    {
+      "id": "claude-desktop-vm-bundles",
+      "category": "aiTools",
+      "label": "Claude desktop sandbox VM bundles",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-downloaded when a sandboxed session starts",
+      "paths": {
+        "macos": [
+          "Library/Application Support/Claude/vm_bundles"
+        ]
+      }
+    },
+    {
+      "id": "claude-desktop-code-vm",
+      "category": "aiTools",
+      "label": "Claude desktop Claude Code VM",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-downloaded when Claude Code runs in the app",
+      "paths": {
+        "macos": [
+          "Library/Application Support/Claude/claude-code-vm"
+        ]
+      }
+    },
+    {
+      "id": "claude-cli-cache",
+      "category": "aiTools",
+      "label": "Claude Code CLI cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Recreated on next session",
+      "paths": {
+        "macos": [
+          "Library/Caches/claude-cli-nodejs"
+        ],
+        "linux": [
+          ".cache/claude-cli-nodejs"
+        ]
+      }
+    },
+    {
+      "id": "claude-debug",
+      "category": "aiTools",
+      "label": "Claude Code debug logs",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Recreated on next session",
+      "paths": {
+        "macos": [
+          ".claude/debug"
+        ],
+        "linux": [
+          ".claude/debug"
+        ]
+      }
+    },
+    {
+      "id": "claude-paste-cache",
+      "category": "aiTools",
+      "label": "Claude Code paste cache",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Recreated on next session",
+      "paths": {
+        "macos": [
+          ".claude/paste-cache"
+        ],
+        "linux": [
+          ".claude/paste-cache"
+        ]
+      }
+    },
+    {
+      "id": "claude-file-history",
+      "category": "aiTools",
+      "label": "Claude Code file history",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Needed to rewind edits in past sessions",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".claude/file-history"
+        ],
+        "linux": [
+          ".claude/file-history"
+        ]
+      }
+    },
+    {
+      "id": "claude-scratch-tmp",
+      "category": "agentHost",
+      "label": "Claude Code scratch directories",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Per-session temporary files; recreated as needed",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          "/private/tmp/claude-*"
+        ],
+        "linux": [
+          "/tmp/claude-*",
+          "$TMPDIR/claude-*"
+        ]
+      }
+    },
+    {
+      "id": "codex-logs",
+      "category": "aiTools",
+      "label": "Codex CLI logs",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Recreated on next session",
+      "paths": {
+        "macos": [
+          ".codex/log"
+        ],
+        "linux": [
+          ".codex/log"
+        ]
+      }
+    },
+    {
+      "id": "codex-sqlite-logs",
+      "category": "aiTools",
+      "label": "Codex feedback log databases",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Codex recreates the database; local feedback history is lost",
+      "kind": "file",
+      "paths": {
+        "macos": [
+          ".codex/logs_*.sqlite",
+          ".codex/logs_*.sqlite-wal"
+        ],
+        "linux": [
+          ".codex/logs_*.sqlite",
+          ".codex/logs_*.sqlite-wal"
+        ]
+      }
+    },
+    {
+      "id": "codex-sessions",
+      "category": "aiTools",
+      "label": "Codex CLI sessions",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Past Codex sessions cannot be resumed",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".codex/sessions"
+        ],
+        "linux": [
+          ".codex/sessions"
+        ]
+      }
+    },
+    {
+      "id": "codex-desktop-crashpad",
+      "category": "agentHost",
+      "label": "Codex desktop crash dumps",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Crash reports already submitted; safe to clear",
+      "paths": {
+        "macos": [
+          "Library/Application Support/com.openai.codex/web/Crashpad/pending",
+          "Library/Application Support/com.openai.codex/web/Crashpad/completed",
+          "Library/Application Support/Codex/Crashpad/pending",
+          "Library/Application Support/Codex/Crashpad/completed"
+        ]
+      }
+    },
+    {
+      "id": "codex-code-sign-clones",
+      "category": "agentHost",
+      "label": "Codex desktop leftover signing clones",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Left behind after quit; quit Codex before clearing",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          "$TMPDIR/../X/com.openai.codex.code_sign_clone"
+        ]
+      }
+    },
+    {
+      "id": "gemini-tmp",
+      "category": "aiTools",
+      "label": "Gemini CLI checkpoints",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Past Gemini conversations cannot be restored",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".gemini/tmp"
+        ],
+        "linux": [
+          ".gemini/tmp"
+        ]
+      }
+    },
+    {
+      "id": "gemini-history",
+      "category": "aiTools",
+      "label": "Gemini CLI checkpoint repos",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "File snapshots from past Gemini sessions are lost",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".gemini/history"
+        ],
+        "linux": [
+          ".gemini/history"
+        ]
+      }
+    },
+    {
+      "id": "opencode-storage",
+      "category": "aiTools",
+      "label": "OpenCode session storage",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Past OpenCode sessions cannot be resumed",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".local/share/opencode/storage"
+        ],
+        "linux": [
+          ".local/share/opencode/storage"
+        ]
+      }
+    },
+    {
+      "id": "goose-sessions",
+      "category": "aiTools",
+      "label": "Goose sessions",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Past Goose sessions cannot be resumed",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          "Library/Application Support/goose"
+        ],
+        "linux": [
+          ".local/share/goose"
+        ]
+      }
+    },
+    {
+      "id": "qwen-sessions",
+      "category": "aiTools",
+      "label": "Qwen Code sessions",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Past Qwen Code sessions cannot be resumed",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".qwen"
+        ],
+        "linux": [
+          ".qwen"
+        ]
+      }
+    },
+    {
+      "id": "cursor-state-backup",
+      "category": "aiTools",
+      "label": "Cursor state database backup",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Cursor rewrites the backup from the live database",
+      "kind": "file",
+      "paths": {
+        "macos": [
+          "Library/Application Support/Cursor/User/globalStorage/state.vscdb.backup"
+        ],
+        "linux": [
+          ".config/Cursor/User/globalStorage/state.vscdb.backup"
+        ]
+      }
+    },
+    {
+      "id": "cursor-state-db",
+      "category": "aiTools",
+      "label": "Cursor chat and agent state database",
+      "ecosystem": "ai",
+      "tier": "warning",
+      "restoreHint": "Holds all Cursor chat history; quit Cursor and export chats first",
+      "kind": "file",
+      "paths": {
+        "macos": [
+          "Library/Application Support/Cursor/User/globalStorage/state.vscdb"
+        ],
+        "linux": [
+          ".config/Cursor/User/globalStorage/state.vscdb"
+        ]
+      }
+    },
+    {
+      "id": "cursor-history",
+      "category": "aiTools",
+      "label": "Cursor local file history",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Timeline view loses past versions of edited files",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          "Library/Application Support/Cursor/User/History"
+        ],
+        "linux": [
+          ".config/Cursor/User/History"
+        ]
+      }
+    },
+    {
+      "id": "npx-cache",
+      "category": "aiTools",
+      "label": "npx cache (MCP servers)",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-downloaded on next npx run",
+      "paths": {
+        "macos": [
+          ".npm/_npx"
+        ],
+        "linux": [
+          ".npm/_npx"
+        ]
+      }
+    },
+    {
+      "id": "playwright-browsers",
+      "category": "aiTools",
+      "label": "Playwright browsers",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "npx playwright install",
+      "paths": {
+        "macos": [
+          "Library/Caches/ms-playwright"
+        ],
+        "linux": [
+          ".cache/ms-playwright"
+        ]
+      }
+    },
+    {
+      "id": "puppeteer-browsers",
+      "category": "aiTools",
+      "label": "Puppeteer browsers",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Re-downloaded on next npm install",
+      "paths": {
+        "macos": [
+          ".cache/puppeteer"
+        ],
+        "linux": [
+          ".cache/puppeteer"
+        ]
+      }
+    },
+    {
+      "id": "continue-index",
+      "category": "aiTools",
+      "label": "Continue codebase index",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on next index",
+      "paths": {
+        "macos": [
+          ".continue/index"
+        ],
+        "linux": [
+          ".continue/index"
+        ]
+      }
+    },
+    {
+      "id": "openclaw-plugin-captures",
+      "category": "agentHost",
+      "label": "OpenClaw plugin build captures",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on the next plugin or catalog refresh",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".openclaw/tmp/plugin-captures"
+        ],
+        "linux": [
+          ".openclaw/tmp/plugin-captures",
+          "$OPENCLAW_STATE_DIR/tmp/plugin-captures"
+        ]
+      }
+    },
+    {
+      "id": "openclaw-plugin-build-tmp",
+      "category": "agentHost",
+      "label": "OpenClaw plugin build temp dirs",
+      "ecosystem": "ai",
+      "tier": "safe",
+      "restoreHint": "Rebuilt on the next plugin build",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          "$TMPDIR/openclaw-plugin-build-*",
+          "/private/tmp/openclaw-plugin-build-*"
+        ],
+        "linux": [
+          "/tmp/openclaw-plugin-build-*",
+          "$TMPDIR/openclaw-plugin-build-*"
+        ]
+      }
+    },
+    {
+      "id": "openclaw-logs",
+      "category": "agentHost",
+      "label": "OpenClaw gateway logs",
+      "ecosystem": "ai",
+      "tier": "caution",
+      "restoreHint": "Logs only; keep the newest file if you are debugging",
+      "activity": "newestChild",
+      "paths": {
+        "macos": [
+          ".openclaw/logs"
+        ],
+        "linux": [
+          ".openclaw/logs",
+          "$OPENCLAW_STATE_DIR/logs"
+        ]
+      }
+    },
+    {
+      "id": "xdg-trash",
+      "category": "agentHost",
+      "label": "Trash (never emptied on a headless host)",
+      "ecosystem": "general",
+      "tier": "caution",
+      "restoreHint": "Review with a file manager or `roomy purge --trash`",
+      "paths": {
+        "linux": [
+          ".local/share/Trash/files"
+        ]
+      }
+    },
+    {
+      "id": "electron-crashpad-generic",
+      "category": "agentHost",
+      "label": "Crash dumps",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "Already submitted crash reports",
+      "childLabel": "{parent} crash dumps",
+      "paths": {
+        "macos": [
+          "Library/Application Support/*/Crashpad/pending",
+          "Library/Application Support/*/Crashpad/completed"
+        ],
+        "linux": [
+          ".config/*/Crashpad/pending",
+          ".config/*/Crashpad/completed"
+        ]
+      }
+    },
+    {
+      "id": "npm-cache",
+      "category": "globalCaches",
+      "label": "npm cache",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "npm cache clean --force",
+      "paths": {
+        "macos": [
+          ".npm/_cacache"
+        ],
+        "linux": [
+          ".npm/_cacache"
+        ]
+      }
+    },
+    {
+      "id": "yarn-cache",
+      "category": "globalCaches",
+      "label": "yarn cache",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "yarn cache clean",
+      "paths": {
+        "macos": [
+          ".cache/yarn",
+          "Library/Caches/Yarn"
+        ],
+        "linux": [
+          ".cache/yarn"
+        ]
+      }
+    },
+    {
+      "id": "pnpm-store",
+      "category": "globalCaches",
+      "label": "pnpm store",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "pnpm store prune",
+      "paths": {
+        "macos": [
+          "Library/Caches/pnpm",
+          ".local/share/pnpm/store",
+          ".pnpm-store"
+        ],
+        "linux": [
+          ".local/share/pnpm/store",
+          ".cache/pnpm",
+          ".pnpm-store"
+        ]
+      }
+    },
+    {
+      "id": "bun-cache",
+      "category": "globalCaches",
+      "label": "bun install cache",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "bun install",
+      "paths": {
+        "macos": [
+          ".bun/install/cache"
+        ],
+        "linux": [
+          ".bun/install/cache"
+        ]
+      }
+    },
+    {
+      "id": "deno-cache",
+      "category": "globalCaches",
+      "label": "Deno cache",
+      "ecosystem": "npm",
+      "tier": "safe",
+      "restoreHint": "deno cache re-downloads modules",
+      "paths": {
+        "macos": [
+          "Library/Caches/deno"
+        ],
+        "linux": [
+          ".cache/deno"
+        ]
+      }
+    },
+    {
+      "id": "pip-cache",
+      "category": "globalCaches",
+      "label": "pip cache",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "pip cache purge",
+      "paths": {
+        "macos": [
+          "Library/Caches/pip",
+          ".cache/pip"
+        ],
+        "linux": [
+          ".cache/pip"
+        ]
+      }
+    },
+    {
+      "id": "uv-cache",
+      "category": "globalCaches",
+      "label": "uv cache",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "uv cache clean",
+      "paths": {
+        "macos": [
+          "Library/Caches/uv",
+          ".cache/uv"
+        ],
+        "linux": [
+          "$UV_CACHE_DIR",
+          ".cache/uv"
+        ]
+      }
+    },
+    {
+      "id": "poetry-cache",
+      "category": "globalCaches",
+      "label": "Poetry cache",
+      "ecosystem": "py",
+      "tier": "safe",
+      "restoreHint": "poetry cache clear --all",
+      "paths": {
+        "macos": [
+          "Library/Caches/pypoetry"
+        ],
+        "linux": [
+          ".cache/pypoetry"
+        ]
+      }
+    },
+    {
+      "id": "nuget-packages",
+      "category": "globalCaches",
+      "label": "NuGet packages",
+      "ecosystem": "dotnet",
+      "tier": "safe",
+      "restoreHint": "dotnet nuget locals all --clear",
+      "paths": {
+        "macos": [
+          ".nuget/packages"
+        ],
+        "linux": [
+          ".nuget/packages"
+        ]
+      }
+    },
+    {
+      "id": "nuget-http-cache",
+      "category": "globalCaches",
+      "label": "NuGet HTTP cache",
+      "ecosystem": "dotnet",
+      "tier": "safe",
+      "restoreHint": "dotnet nuget locals http-cache --clear",
+      "paths": {
+        "macos": [
+          ".local/share/NuGet/http-cache"
+        ],
+        "linux": [
+          ".local/share/NuGet/http-cache"
+        ]
+      }
+    },
+    {
+      "id": "go-build-cache",
+      "category": "globalCaches",
+      "label": "Go build cache",
+      "ecosystem": "go",
+      "tier": "safe",
+      "restoreHint": "go build repopulates it",
+      "paths": {
+        "macos": [
+          "Library/Caches/go-build"
+        ],
+        "linux": [
+          "$GOCACHE",
+          ".cache/go-build"
+        ]
+      }
+    },
+    {
+      "id": "go-mod-cache",
+      "category": "globalCaches",
+      "label": "Go module cache",
+      "ecosystem": "go",
+      "tier": "caution",
+      "restoreHint": "go mod download",
+      "paths": {
+        "macos": [
+          "go/pkg/mod"
+        ],
+        "linux": [
+          "go/pkg/mod"
+        ]
+      }
+    },
+    {
+      "id": "cargo-registry",
+      "category": "globalCaches",
+      "label": "Cargo registry cache",
+      "ecosystem": "rust",
+      "tier": "caution",
+      "restoreHint": "cargo fetch",
+      "paths": {
+        "macos": [
+          ".cargo/registry"
+        ],
+        "linux": [
+          ".cargo/registry"
+        ]
+      }
+    },
+    {
+      "id": "gradle-caches",
+      "category": "globalCaches",
+      "label": "Gradle caches",
+      "ecosystem": "java",
+      "tier": "safe",
+      "restoreHint": "Gradle re-downloads dependencies",
+      "paths": {
+        "macos": [
+          ".gradle/caches"
+        ],
+        "linux": [
+          ".gradle/caches"
+        ]
+      }
+    },
+    {
+      "id": "maven-repository",
+      "category": "globalCaches",
+      "label": "Maven local repository",
+      "ecosystem": "java",
+      "tier": "caution",
+      "restoreHint": "mvn dependency:resolve",
+      "paths": {
+        "macos": [
+          ".m2/repository"
+        ],
+        "linux": [
+          ".m2/repository"
+        ]
+      }
+    },
+    {
+      "id": "ccache",
+      "category": "globalCaches",
+      "label": "ccache",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "Repopulated by the compiler",
+      "paths": {
+        "macos": [
+          ".ccache",
+          "Library/Caches/ccache"
+        ],
+        "linux": [
+          ".ccache",
+          ".cache/ccache"
+        ]
+      }
+    },
+    {
+      "id": "pyenv-versions",
+      "category": "python",
+      "label": "pyenv",
+      "ecosystem": "py",
+      "tier": "caution",
+      "restoreHint": "pyenv install <version>",
+      "mode": "children",
+      "childLabel": "pyenv {name}",
+      "activity": "self",
+      "paths": {
+        "macos": [
+          ".pyenv/versions"
+        ],
+        "linux": [
+          ".pyenv/versions"
+        ]
+      }
+    },
+    {
+      "id": "xcode-derived-data",
+      "category": "xcode",
+      "label": "DerivedData",
+      "ecosystem": "swift",
+      "tier": "safe",
+      "restoreHint": "Open project in Xcode and build (⌘B)",
+      "mode": "children",
+      "childLabel": "DerivedData/{name}",
+      "paths": {
+        "macos": [
+          "Library/Developer/Xcode/DerivedData"
+        ]
+      }
+    },
+    {
+      "id": "xcode-device-support",
+      "category": "xcode",
+      "label": "iOS DeviceSupport",
+      "ecosystem": "swift",
+      "tier": "caution",
+      "restoreHint": "Re-connect device; Xcode re-downloads automatically",
+      "mode": "children",
+      "childLabel": "DeviceSupport/{name}",
+      "activity": "self",
+      "paths": {
+        "macos": [
+          "Library/Developer/Xcode/iOS DeviceSupport"
+        ]
+      }
+    },
+    {
+      "id": "coresimulator-caches",
+      "category": "xcode",
+      "label": "CoreSimulator Caches",
+      "ecosystem": "swift",
+      "tier": "safe",
+      "restoreHint": "Xcode recreates simulator caches as needed",
+      "paths": {
+        "macos": [
+          "Library/Developer/CoreSimulator/Caches"
+        ]
+      }
+    },
+    {
+      "id": "homebrew-cache",
+      "category": "homebrew",
+      "label": "Homebrew cache",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "Caches rebuild automatically; brew reinstall for removed downloads",
+      "paths": {
+        "macos": [
+          "Library/Caches/Homebrew"
+        ],
+        "linux": [
+          ".cache/Homebrew"
+        ]
+      }
+    },
+    {
+      "id": "homebrew-logs",
+      "category": "homebrew",
+      "label": "Homebrew logs",
+      "ecosystem": "general",
+      "tier": "safe",
+      "restoreHint": "Recreated on next brew run",
+      "paths": {
+        "macos": [
+          "Library/Logs/Homebrew"
+        ]
+      }
+    }
+  ],
+  "walkSkip": {
+    "all": [
+      ".git",
+      ".hg",
+      ".svn",
+      "~/.roomy",
+      "~/.cursor-server",
+      "~/.vscode-server",
+      "~/.vscode-server-insiders",
+      "~/.cursor",
+      "~/.vscode",
+      "~/.windsurf-server",
+      "~/.nvm",
+      "~/.volta",
+      "~/.fnm",
+      "~/.bun",
+      "~/.deno",
+      "~/.npm",
+      "~/.yarn",
+      "~/.pnpm-store",
+      "~/.local/share/pnpm",
+      "~/.pyenv",
+      "~/.local/share/uv",
+      "~/.local/share/virtualenvs",
+      "~/.conda",
+      "~/miniconda3",
+      "~/anaconda3",
+      "~/miniforge3",
+      "~/mambaforge",
+      "~/.rustup",
+      "~/.cargo",
+      "~/go/pkg",
+      "~/.gradle",
+      "~/.m2",
+      "~/.nuget",
+      "~/.dotnet",
+      "~/.cache",
+      "~/.local/share/Trash",
+      "~/.ollama",
+      "~/.lmstudio",
+      "~/.codex",
+      "~/.claude",
+      "~/.gemini",
+      "~/.openclaw",
+      "~/.continue",
+      "~/.local/share/opencode",
+      "~/.docker",
+      "~/.kube",
+      "~/.terraform.d"
+    ],
+    "macos": [
+      "~/Library",
+      "~/.Trash",
+      "/System",
+      "/Library",
+      "/private",
+      "/Volumes",
+      "/Applications",
+      "/usr",
+      "/bin",
+      "/sbin",
+      "/opt/homebrew",
+      "/nix"
+    ],
+    "linux": [
+      "~/.config/Cursor",
+      "~/.config/Code",
+      "~/.config/Code - Insiders",
+      "~/.config/Windsurf",
+      "~/.local/share/Steam",
+      "~/snap",
+      "/proc",
+      "/sys",
+      "/dev",
+      "/run",
+      "/boot",
+      "/usr",
+      "/lib",
+      "/lib64",
+      "/bin",
+      "/sbin",
+      "/etc",
+      "/var/lib",
+      "/var/cache",
+      "/snap",
+      "/nix",
+      "/opt"
+    ]
+  }
+}

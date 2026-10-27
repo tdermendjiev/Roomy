@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "name": "agent-host",
+  "scan": {
+    "roots": ["~"],
+    "categories": ["aiTools", "agentHost", "globalCaches", "docker", "python"],
+    "exclude": [],
+    "extraRules": [],
+    "disabledRules": []
+  },
+  "autoClean": {
+    "tiers": ["safe"],
+    "minIdleDays": 3,
+    "requireKnownIdle": false,
+    "minBytes": 1048576
+  },
+  "never": {
+    "tiers": ["warning"],
+    "ruleIDs": [],
+    "paths": ["~/.claude/projects", "~/.codex/sessions"]
+  },
+  "disposal": {
+    "method": "quarantine",
+    "retentionDays": 7,
+    "purgeOnRun": true
+  },
+  "audit": { "path": "~/.roomy/audit.jsonl" },
+  "metrics": {
+    "textfile": "/var/lib/node_exporter/textfile_collector/roomy.prom",
+    "listen": "127.0.0.1:9477"
+  },
+  "license": { "keyFile": "/etc/roomy/license.key" },
+  "dryRun": false
+}

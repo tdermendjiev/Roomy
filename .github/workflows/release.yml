@@ -1,0 +1,147 @@
+name: Release
+# Runs in the public repository (github.com/tdermendjiev/Roomy), which packaging/scripts/export-os.sh
+# fills from the private tree. Pushing a v* tag there builds every artifact and updates the Homebrew tap.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  linux:
+    name: Linux ${{ matrix.arch }}
+    if: github.repository == 'tdermendjiev/Roomy'
+    runs-on: ${{ matrix.runner }}
+    container: swift:6.1-noble
+    strategy:
+      matrix:
+        include:
+          - { arch: amd64, runner: ubuntu-24.04 }
+          - { arch: arm64, runner: ubuntu-24.04-arm }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build static binary
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends binutils curl ca-certificates
+          packaging/scripts/build-linux.sh
+      - name: Install nfpm
+        run: |
+          NFPM_URL=$(curl -s https://api.github.com/repos/goreleaser/nfpm/releases/latest | grep browser_download_url | grep "Linux_$(uname -m).tar.gz" | head -1 | cut -d'"' -f4)
+          curl -sSfL "$NFPM_URL" \
+            | tar xz -C /usr/local/bin nfpm
+      - name: Packages
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          packaging/scripts/package-linux.sh "$VERSION" "${{ matrix.arch }}"
+          tar czf "dist/packages/roomy-$VERSION-linux-${{ matrix.arch }}.tar.gz" -C dist/linux/${{ matrix.arch }} roomy
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
+          path: dist/packages/
+
+  macos:
+    name: macOS universal
+    if: github.repository == 'tdermendjiev/Roomy'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: { xcode-version: latest-stable }
+      - name: Import Developer ID (if configured)
+        if: ${{ secrets.DEVELOPER_ID_P12 != '' }}
+        env:
+          P12: ${{ secrets.DEVELOPER_ID_P12 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+        run: |
+          echo "$P12" | base64 --decode > /tmp/cert.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import /tmp/cert.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+      - name: Build, sign, notarize
+        env:
+          DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+          NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
+        run: |
+          packaging/scripts/build-macos.sh
+          if [ -n "$NOTARY_KEY_P8" ]; then
+            echo "$NOTARY_KEY_P8" > /tmp/notary.p8
+            xcrun notarytool submit dist/macos/roomy-*-macos-universal.tar.gz --key /tmp/notary.p8 --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER_ID" --wait
+          fi
+      - uses: actions/upload-artifact@v4
+        with: { name: macos, path: dist/macos/ }
+
+  container:
+    name: Container image
+    if: github.repository == 'tdermendjiev/Roomy'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packaging/docker/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/tdermendjiev/roomy:${{ github.ref_name }}
+            ghcr.io/tdermendjiev/roomy:latest
+
+  publish:
+    name: GitHub release
+    needs: [linux, macos, container]
+    if: github.repository == 'tdermendjiev/Roomy'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: dist/release, merge-multiple: true }
+      - name: SBOM, checksums, signatures
+        env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          packaging/scripts/sbom.py "$VERSION" > "dist/release/roomy-$VERSION.cdx.json"
+          if [ -n "$GPG_PRIVATE_KEY" ]; then echo "$GPG_PRIVATE_KEY" | gpg --batch --import; fi
+          packaging/scripts/sign.sh dist/release
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/release/*
+          generate_release_notes: true
+
+  homebrew:
+    name: Homebrew tap
+    needs: [publish]
+    if: github.repository == 'tdermendjiev/Roomy' && !contains(github.ref_name, '-')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Formula/roomy.rb in tdermendjiev/homebrew-roomy
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then echo "HOMEBREW_TAP_TOKEN not set; update the tap by hand (packaging/scripts/release.sh prints the values)"; exit 0; fi
+          VERSION="${GITHUB_REF_NAME#v}"
+          URL="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
+          SHA="$(curl -sSL "$URL" | sha256sum | cut -d' ' -f1)"
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/tdermendjiev/homebrew-roomy.git" tap
+          mkdir -p tap/Formula
+          sed -e "s|^  url \".*\"|  url \"$URL\"|" -e "s|^  sha256 \".*\"|  sha256 \"$SHA\"|" packaging/homebrew/roomy.rb > tap/Formula/roomy.rb
+          cd tap
+          git config user.name "roomy-release"
+          git config user.email "hello@getroomy.dev"
+          git add Formula/roomy.rb
+          git diff --cached --quiet || { git commit -m "roomy $VERSION"; git push; }

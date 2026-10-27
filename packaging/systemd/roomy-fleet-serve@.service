@@ -1,0 +1,20 @@
+# Roomy Fleet — long-running: runs the policy on an interval and serves Prometheus metrics.
+# Use this where node_exporter's textfile collector is not available.
+#   systemctl enable --now roomy-fleet-serve@agent.service
+[Unit]
+Description=Roomy Fleet metrics server and scheduler for %i
+Documentation=https://getroomy.dev/docs/fleet
+After=network-online.target
+
+[Service]
+User=%i
+Environment=ROOMY_POLICY=/etc/roomy/policy.json
+ExecStart=/usr/bin/roomy fleet serve --interval 6h
+Restart=on-failure
+RestartSec=30
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

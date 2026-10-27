@@ -1,0 +1,25 @@
+# Roomy Hub — central inventory, dashboard and fleet-wide metrics for Roomy hosts.
+#   roomy hub token > /etc/roomy/hub.agent.token   (give this one to agents: hub.tokenFile in their policy)
+#   roomy hub token > /etc/roomy/hub.admin.token   (dashboard, API, Prometheus scrape)
+#   systemctl enable --now roomy-hub.service
+# Data lives in /var/lib/roomy-hub (StateDirectory). Put a reverse proxy with TLS in front for anything beyond a private network.
+[Unit]
+Description=Roomy Hub (fleet inventory and dashboard)
+Documentation=https://getroomy.dev/fleet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+DynamicUser=yes
+StateDirectory=roomy-hub
+EnvironmentFile=-/etc/roomy/hub.env
+ExecStart=/usr/bin/roomy hub serve --listen ${ROOMY_HUB_LISTEN} --data-dir /var/lib/roomy-hub --agent-token-file /etc/roomy/hub.agent.token --admin-token-file /etc/roomy/hub.admin.token --title "${ROOMY_HUB_TITLE}"
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
