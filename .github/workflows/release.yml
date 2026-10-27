@@ -28,10 +28,15 @@ jobs:
           apt-get update && apt-get install -y --no-install-recommends binutils curl ca-certificates
           packaging/scripts/build-linux.sh
       - name: Install nfpm
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NFPM_URL=$(curl -s https://api.github.com/repos/goreleaser/nfpm/releases/latest | grep browser_download_url | grep "Linux_$(uname -m).tar.gz" | head -1 | cut -d'"' -f4)
-          curl -sSfL "$NFPM_URL" \
-            | tar xz -C /usr/local/bin nfpm
+          case "$(uname -m)" in aarch64|arm64) NFPM_ARCH=arm64 ;; *) NFPM_ARCH=x86_64 ;; esac
+          NFPM_URL=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/goreleaser/nfpm/releases/latest \
+            | grep browser_download_url | grep "Linux_${NFPM_ARCH}.tar.gz" | head -1 | cut -d'"' -f4)
+          [ -n "$NFPM_URL" ] || { echo "could not resolve the nfpm download for $NFPM_ARCH"; exit 1; }
+          curl -sSfL "$NFPM_URL" | tar xz -C /usr/local/bin nfpm
+          nfpm --version
       - name: Packages
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
