@@ -12,6 +12,13 @@
 //
 
 import Foundation
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#endif
 
 public enum RoomySnapshotSchema {
     public static let version = 1
@@ -137,11 +144,20 @@ public enum DirectorySizeSurvey {
         var out: [DiskSnapshot.Dir] = []
         var seen = Set<String>()
         for root in roots {
-            let r = root.standardizedFileURL
+            let r = canonical(root)
             guard seen.insert(r.path).inserted else { continue }
             out.append(contentsOf: survey(root: r, depth: max(0, depth), minBytes: minBytes, shouldCancel: shouldCancel))
         }
         return out
+    }
+
+    /// The real path of a root, symlinks resolved. The enumerator reports real paths for what it finds
+    /// (on macOS `/var/…` comes back as `/private/var/…`), and so does the scanner for findings, so the
+    /// root has to be in the same form for the three to line up.
+    private static func canonical(_ url: URL) -> URL {
+        guard let real = realpath(url.path, nil) else { return url }
+        defer { free(real) }
+        return URL(fileURLWithPath: String(cString: real), isDirectory: true)
     }
 
     private static func device(_ path: String, fm: FileManager) -> Int? {
