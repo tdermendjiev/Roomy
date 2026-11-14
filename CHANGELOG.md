@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.5.0 — 2026-11-15
+
+CLI, Fleet and Hub release. The Mac app stays at 1.4.0.
 
 ### New
 - **`roomy growth`**: what is filling the disk. `roomy scan --snapshot` saves a compact copy of each scan; `roomy growth [--since 7d]` compares two snapshots and lists the findings that grew, appeared, shrank or went away, the change per category and the change in free space. `--json` for agents.

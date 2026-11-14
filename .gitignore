@@ -28,5 +28,13 @@ Roomy 20*/
 tools/licensetool/.build/
 tools/licensetool/.swiftpm/
 
-# Private desktop repository, cloned here for docs and landing page work
+# Xcode command-line builds
+build/
+
+# Secrets
+.stripe.pk
+functions/node_modules/
+.resend.pk
+
+# A clone of this repository inside the public checkout (docs and landing page work)
 Roomy_desktop/
