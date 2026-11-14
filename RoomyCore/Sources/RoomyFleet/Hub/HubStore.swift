@@ -26,10 +26,13 @@ public struct HubHistoryPoint: Codable, Equatable, Sendable {
     public var failures: Int
     public var volumeAvailableBytes: Int64?
     public var dryRun: Bool
+    /// Reclaimable bytes per category at that run. Nil for points recorded before this was kept.
+    public var bytesByCategory: [String: Int64]?
 
-    public init(time: Date, reclaimableBytes: Int64, disposedBytes: Int64, failures: Int, volumeAvailableBytes: Int64?, dryRun: Bool) {
+    public init(time: Date, reclaimableBytes: Int64, disposedBytes: Int64, failures: Int, volumeAvailableBytes: Int64?, dryRun: Bool,
+                bytesByCategory: [String: Int64]? = nil) {
         self.time = time; self.reclaimableBytes = reclaimableBytes; self.disposedBytes = disposedBytes; self.failures = failures
-        self.volumeAvailableBytes = volumeAvailableBytes; self.dryRun = dryRun
+        self.volumeAvailableBytes = volumeAvailableBytes; self.dryRun = dryRun; self.bytesByCategory = bytesByCategory
     }
 }
 
@@ -197,7 +200,8 @@ public final class HubStore: @unchecked Sendable {
             file = HubHostFile(host: report.host, firstSeen: now, lastSeen: now, reports: 1, latest: report, history: [], note: nil)
         }
         file.history.append(HubHistoryPoint(time: report.startedAt, reclaimableBytes: report.reclaimableBytes, disposedBytes: report.disposedBytes,
-                                            failures: report.failures, volumeAvailableBytes: report.volumeAvailableBytes, dryRun: report.dryRun))
+                                            failures: report.failures, volumeAvailableBytes: report.volumeAvailableBytes, dryRun: report.dryRun,
+                                            bytesByCategory: report.bytesByCategory.isEmpty ? nil : report.bytesByCategory))
         if file.history.count > Self.historyCap { file.history.removeFirst(file.history.count - Self.historyCap) }
         try save(file)
         hosts[report.host] = file

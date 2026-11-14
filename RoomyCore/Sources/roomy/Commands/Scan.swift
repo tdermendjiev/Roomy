@@ -106,6 +106,8 @@ struct Scan: AsyncParsableCommand {
         Prints a table, or the full report as JSON with --json (schema version \(RoomyReportSchema.version)).
         With --plan FILE, also writes a cleanup plan containing every finding at or below --plan-tier
         (default: safe) and older than --min-idle-days, ready for `roomy clean --plan FILE`.
+        With --snapshot, also saves a compact copy of the report so `roomy growth` can later say what
+        grew. Add --dirs to record directory sizes too, which catches growth outside Roomy's rules.
         """
     )
 
@@ -132,8 +134,31 @@ struct Scan: AsyncParsableCommand {
     @Option(name: .long, help: "Rows to show in the table.")
     var top: Int = 40
 
+    @Flag(name: .long, help: "Save a snapshot of this scan for `roomy growth`. Old snapshots are thinned to one per week after 14 days and dropped after a year.")
+    var snapshot = false
+
+    @Option(name: .long, help: "Where snapshots live. Default ~/.roomy/snapshots or $ROOMY_SNAPSHOT_DIR.")
+    var snapshotDir: String?
+
+    @Flag(name: .long, help: "With --snapshot: also record the size of every directory under your home directory, down to --dirs-depth. Slower, since it reads the whole tree.")
+    var dirs = false
+
+    @Option(name: .long, parsing: .upToNextOption, help: "With --snapshot: directories to size instead of your home directory (implies --dirs). Other filesystems mounted below them are not entered.")
+    var dirsRoot: [String] = []
+
+    @Option(name: .long, help: "With --dirs: how many levels below each root get their own entry.")
+    var dirsDepth: Int = DirectorySizeSurvey.defaultDepth
+
+    func validate() throws {
+        if !snapshot, dirs || !dirsRoot.isEmpty || snapshotDir != nil {
+            throw ValidationError("--dirs, --dirs-root and --snapshot-dir need --snapshot.")
+        }
+        if dirsDepth < 0 || dirsDepth > 6 { throw ValidationError("--dirs-depth must be between 0 and 6.") }
+    }
+
     func run() async throws {
         let report = try await options.scan()
+        if snapshot { try saveSnapshot(report) }
         if json {
             Output.printJSONData(try report.encoded())
         } else {
@@ -157,6 +182,24 @@ struct Scan: AsyncParsableCommand {
             Output.status("plan: \(items.count) items, \(ByteFormatting.format(plan.totalBytes)) (tier ≤ \(Output.tierLabel(planTier))) → \(planPath)", quiet: false)
             Output.status("next: roomy clean --plan \(planPath)", quiet: false)
         }
+    }
+
+    private func saveSnapshot(_ report: ScanReport) throws {
+        let home = options.resolvedHome()
+        var surveyed: [DiskSnapshot.Dir]?
+        if dirs || !dirsRoot.isEmpty {
+            let resolver = RoomyPathResolver(home: home)
+            let roots = dirsRoot.isEmpty ? [home] : dirsRoot.compactMap { resolver.resolve($0) }
+            Output.status("sizing directories under \(roots.map { resolver.display($0.path) }.joined(separator: ", ")) …", quiet: options.quiet)
+            surveyed = DirectorySizeSurvey.survey(roots: roots, depth: dirsDepth)
+        }
+        let store = SnapshotStore(directory: Growth.snapshotDirectory(snapshotDir))
+        let url = try store.save(DiskSnapshot(report: report, dirs: surveyed, dirMinBytes: DirectorySizeSurvey.defaultMinBytes))
+        let removed = store.prune()
+        let count = store.list().count
+        Output.status("snapshot: \(report.items.count) findings\(surveyed.map { ", \($0.count) directories" } ?? "") → \(url.path)"
+                      + " (\(count) kept\(removed.isEmpty ? "" : ", \(removed.count) old removed"))", quiet: false)
+        if count > 1 { Output.status("next: roomy growth", quiet: options.quiet) }
     }
 
     private func printTable(_ r: ScanReport) {

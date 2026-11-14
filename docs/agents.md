@@ -20,6 +20,15 @@ roomy clean --plan /tmp/roomy-plan.json --dry-run --json       # show the human 
 roomy clean --plan /tmp/roomy-plan.json --yes --json --actor "claude-code"
 ```
 
+To answer "what is filling this disk?" rather than "what can I remove?", use snapshots. Neither command deletes anything:
+
+```sh
+roomy scan --snapshot --dirs --quiet > /dev/null      # on a schedule (the package ships roomy-snapshot@.timer)
+roomy growth --since 7d --json                        # items[] and dirs[] with deltaBytes, largest growth first
+```
+
+`items[]` are Roomy findings that grew, appeared, shrank or went away. `dirs[]` (present when the snapshots were taken with `--dirs`) are directories that changed, with `reclaimableDeltaBytes` saying how much of the change Roomy could clean; the rest is the user's own data, so report it and do not touch it.
+
 Read `bytesByTier.safe` first: if it is already enough, stop there. Only escalate to `caution` with explicit user approval, and never automate `warning`.
 
 ## Writing your own plan

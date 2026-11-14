@@ -1,0 +1,12 @@
+# Daily by default. For another cadence: systemctl edit roomy-snapshot@<user>.timer and set
+# OnCalendar=hourly or OnCalendar=weekly (clear the old value first with an empty OnCalendar=).
+[Unit]
+Description=Take a Roomy disk snapshot for %i every day
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

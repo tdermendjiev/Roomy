@@ -21,11 +21,13 @@ struct RoomyCommand: AsyncParsableCommand {
           roomy scan --json                 # what could be reclaimed, as data
           roomy scan --plan plan.json       # write a plan (safe tier by default)
           roomy clean --plan plan.json      # remove exactly what the plan lists
+          roomy scan --snapshot --dirs      # on a schedule: record what is there
+          roomy growth --since 7d           # what grew since then
 
         Exit codes: 0 ok · 1 error · 3 some items failed · 4 another run holds the lock · 5 refused by safety tier · 64 usage.
         """,
         version: RoomyCoreInfo.version,
-        subcommands: [Scan.self, Clean.self, Purge.self, Restore.self, Rules.self, Doctor.self, Fleet.self, Hub.self, Version.self],
+        subcommands: [Scan.self, Growth.self, Clean.self, Purge.self, Restore.self, Rules.self, Doctor.self, Fleet.self, Hub.self, Version.self],
         defaultSubcommand: nil
     )
 }

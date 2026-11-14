@@ -30,6 +30,10 @@ contents:
     dst: /usr/lib/systemd/system/roomy-fleet@.service
   - src: packaging/systemd/roomy-fleet@.timer
     dst: /usr/lib/systemd/system/roomy-fleet@.timer
+  - src: packaging/systemd/roomy-snapshot@.service
+    dst: /usr/lib/systemd/system/roomy-snapshot@.service
+  - src: packaging/systemd/roomy-snapshot@.timer
+    dst: /usr/lib/systemd/system/roomy-snapshot@.timer
   - src: packaging/systemd/roomy-fleet-serve@.service
     dst: /usr/lib/systemd/system/roomy-fleet-serve@.service
   - src: packaging/systemd/roomy-hub.service

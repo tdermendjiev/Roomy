@@ -120,4 +120,64 @@ struct CLITests {
         #expect(doctor.status == 0)
         #expect(doctor.out.contains("\"name\" : \"quarantine\""))
     }
+
+    @Test func snapshotsThenGrowth() throws {
+        let sandbox = FileManager.default.temporaryDirectory.appendingPathComponent("roomy-growth-\(UUID().uuidString)")
+        let home = sandbox.appendingPathComponent("home")
+        defer { try? FileManager.default.removeItem(at: sandbox) }
+        let fm = FileManager.default
+        let nm = home.appendingPathComponent("app/node_modules")
+        try fm.createDirectory(at: nm, withIntermediateDirectories: true)
+        try Data(count: 4096).write(to: nm.appendingPathComponent("a.js"))
+        let snaps = sandbox.appendingPathComponent("snaps").path
+        let scanArgs = ["scan", home.path, "--home", home.path, "--no-system", "--quiet", "--snapshot", "--snapshot-dir", snaps, "--dirs"]
+
+        // Flags that only make sense with --snapshot are refused without it.
+        #expect(try roomy(["scan", home.path, "--home", home.path, "--no-system", "--dirs"]).status == 64)
+
+        let first = try roomy(scanArgs)
+        #expect(first.status == 0, Comment(rawValue: first.err))
+        #expect(first.err.contains("snapshot: 1 findings"))
+
+        // One snapshot is not enough to compare.
+        let early = try roomy(["growth", "--snapshot-dir", snaps])
+        #expect(early.status == 64)
+        #expect(early.err.contains("Only one snapshot"))
+
+        // The tracked folder grows by 3 MB and an untracked one appears with 5 MB.
+        try Data(count: 3 * 1_048_576).write(to: nm.appendingPathComponent("big.js"))
+        let videos = home.appendingPathComponent("Videos")
+        try fm.createDirectory(at: videos, withIntermediateDirectories: true)
+        try Data(count: 5 * 1_048_576).write(to: videos.appendingPathComponent("clip.mov"))
+        Thread.sleep(forTimeInterval: 1.1)   // snapshot files are named to the second
+        #expect(try roomy(scanArgs).status == 0)
+
+        let list = try roomy(["growth", "--snapshot-dir", snaps, "--list", "--json"])
+        #expect(list.status == 0)
+        #expect(list.out.components(separatedBy: "\"takenAt\"").count == 3)
+
+        let json = try roomy(["growth", "--snapshot-dir", snaps, "--json"])
+        #expect(json.status == 0, Comment(rawValue: json.err))
+        struct Report: Decodable {
+            struct Item: Decodable { var path: String; var status: String; var deltaBytes: Int64 }
+            struct Dir: Decodable { var path: String; var deltaBytes: Int64; var reclaimableDeltaBytes: Int64 }
+            var items: [Item]; var dirs: [Dir]?
+        }
+        let report = try JSONDecoder().decode(Report.self, from: Data(json.out.utf8))
+        #expect(report.items.count == 1)
+        #expect(report.items.first?.path.hasSuffix("app/node_modules") == true)
+        #expect(report.items.first?.status == "grew")
+        #expect(report.items.first?.deltaBytes == Int64(3 * 1_048_576))
+        let v = report.dirs?.first { $0.path.hasSuffix("/Videos") }
+        #expect(v?.deltaBytes == Int64(5 * 1_048_576))
+        #expect(v?.reclaimableDeltaBytes == 0)
+        let app = report.dirs?.first { $0.path.hasSuffix("/app") }
+        #expect(app?.reclaimableDeltaBytes == Int64(3 * 1_048_576))
+
+        let table = try roomy(["growth", "--snapshot-dir", snaps, "--since", "1w"])
+        #expect(table.status == 0, Comment(rawValue: table.err))
+        #expect(table.out.contains("Grew (1)"))
+        #expect(table.out.contains("Directories that grew"))
+        #expect(table.out.contains("Videos"))
+    }
 }

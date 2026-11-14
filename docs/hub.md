@@ -50,7 +50,7 @@ Hosts that are over the license allowance still appear with their reports; only 
 
 - **Overview**: hosts by status, reclaimable by tier, freed in the last 24h / 7d / all-time, hosts under disk pressure, quarantine held; freed per day for 14 days; reclaimable by category; the hosts with the most to reclaim, by tier; the largest findings across the fleet; hosts that need attention; recent runs.
 - **Hosts**: searchable, filterable, sortable inventory with tags, status reasons, tier bars, disk meter, a reclaimable sparkline and last-report age.
-- **Host**: everything in the last report, reclaimable over time, freed per run, the largest findings with tier and idle time, why items were skipped, audit chain head, an operator note, and removal.
+- **Host**: everything in the last report, reclaimable over time, freed per run, reclaimable by category per day with the change per category over the last week (which category is growing on this host), the largest findings with tier and idle time, why items were skipped, audit chain head, an operator note, and removal.
 - **Policies**: hub-managed policies and which hosts use each policy name.
 - **Activity**: the hub's own event log (reports, rejections, policy pushes, removals).
 
@@ -86,7 +86,7 @@ Alerts worth having: `roomy_hub_hosts{status="stale"} > 0`, `roomy_hub_host_volu
 
 ```
 /var/lib/roomy-hub/
-  hosts/<host>.json      latest report + up to 1000 history points + note
+  hosts/<host>.json      latest report + up to 1000 history points (totals and bytes per category) + note
   policies/<name>.json   managed policies, exactly as pushed
   events.jsonl           hub event log
 ```

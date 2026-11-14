@@ -33,6 +33,8 @@ Set in the **public** repository (`tdermendjiev/Roomy`) (Settings → Secrets an
 
 `roomy-fleet@.service` + `roomy-fleet@.timer` (oneshot every 6h, `SuccessExitStatus=4` so a held lock is not a failure) and `roomy-fleet-serve@.service` (long-running with metrics). Instance = Unix user.
 
+`roomy-snapshot@.service` + `roomy-snapshot@.timer` take a daily `roomy scan --snapshot --dirs` for `roomy growth`. Nothing is deleted. Not enabled by the package.
+
 `roomy-hub.service` runs the hub as a `DynamicUser` with state in `/var/lib/roomy-hub`, listen address and title from `/etc/roomy/hub.env`, tokens from `/etc/roomy/hub.agent.token` and `/etc/roomy/hub.admin.token`. The Docker image runs it with `hub serve --listen 0.0.0.0:9478 --data-dir /data` (expose 9478, mount `/data`).
 
 ## Config in packages

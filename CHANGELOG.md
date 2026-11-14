@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **`roomy growth`**: what is filling the disk. `roomy scan --snapshot` saves a compact copy of each scan; `roomy growth [--since 7d]` compares two snapshots and lists the findings that grew, appeared, shrank or went away, the change per category and the change in free space. `--json` for agents.
+- **Directory sizes in snapshots** (`--dirs`, `--dirs-root`, `--dirs-depth`): growth outside Roomy's rules is no longer invisible. `growth` lists the directories that grew and how much of that is not a Roomy target.
+- **`roomy-snapshot@.timer`**: a daily snapshot from the Linux packages. Snapshots are thinned to one per week after 14 days and dropped after a year.
+- **Hub: per-category history.** Each history point now keeps reclaimable bytes per category. The host page shows reclaimable by category per day and the change per category over the last week.
+
 ## 1.3.0 — 2026-10-27
 
 The "cleans up after your agents" release. One core, three surfaces.

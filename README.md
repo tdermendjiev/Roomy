@@ -30,6 +30,9 @@ roomy scan --plan plan.json                  # a plan of the safe-tier items
 roomy clean --plan plan.json --dry-run       # what would happen
 roomy clean --plan plan.json --yes           # to the Trash (macOS) or quarantine (Linux)
 roomy restore <path>                         # bring something back
+
+roomy scan --snapshot --dirs                 # on a timer: record what is there
+roomy growth --since 7d                      # what grew since then
 ```
 
 Three safety tiers: **safe** is regenerable, **caution** needs `--allow-caution`, **warning** is irreversible and never automated. Details in [docs/cli.md](docs/cli.md); the contract for agents is in [docs/agents.md](docs/agents.md) and [AGENTS.md](AGENTS.md).

@@ -1,0 +1,20 @@
+# Roomy snapshot — records what is on disk for the given user, so `roomy growth` can say what grew.
+#   systemctl enable --now roomy-snapshot@agent.timer
+# The instance name is the Unix user whose home is scanned. Nothing is deleted. Snapshots land in
+# ~/.roomy/snapshots; read them as that user with `roomy growth --since 7d`.
+# --dirs also sizes every directory under the home, which catches growth outside Roomy's rules.
+# Drop it (systemctl edit) if walking the whole home each run is too slow.
+[Unit]
+Description=Roomy disk snapshot for %i
+Documentation=https://getroomy.dev/docs/cli
+
+[Service]
+Type=oneshot
+User=%i
+ExecStart=/usr/bin/roomy scan --snapshot --dirs --quiet
+StandardOutput=null
+Nice=10
+IOSchedulingClass=idle
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateTmp=false

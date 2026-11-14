@@ -4,6 +4,7 @@ Same core as the Mac app, for terminals, scripts and agents. macOS (universal) a
 
 ```
 roomy scan [paths…] [--json] [--plan FILE] …    find reclaimable artifacts (never deletes)
+roomy growth [--since 7d] [--json] …             what grew between two snapshots (never deletes)
 roomy clean --plan FILE [--dry-run] [--yes] …    remove exactly what the plan lists
 roomy purge [--older-than DAYS] [--trash]        empty expired quarantine (and Linux Trash)
 roomy restore [PATH]                             list or restore quarantined items
@@ -45,6 +46,11 @@ roomy scan [<roots>…]
   --require-known-idle       exclude items whose idle time is unknown
   --method trash|quarantine|delete     disposal recorded in the plan
   --top N                    table rows (default 40)
+  --snapshot                 also save a snapshot of this scan for `roomy growth`
+  --snapshot-dir DIR         where snapshots live (default ~/.roomy/snapshots)
+  --dirs                     with --snapshot: also record directory sizes under the home directory
+  --dirs-root DIR …          with --snapshot: size these directories instead (implies --dirs)
+  --dirs-depth N             with --dirs: levels below each root that get their own entry (default 2)
   -q, --quiet                no progress on stderr
 ```
 
@@ -113,6 +119,82 @@ Rules of engagement:
 
 Any tool may write a plan: filter a `ScanReport`'s `items` and keep the fields above.
 
+## `roomy growth`
+
+Answers "what is filling the disk?". `roomy scan --snapshot` saves a compact copy of the scan (every finding with its size, plus free space); `roomy growth` compares two snapshots.
+
+```
+roomy growth
+  --since 12h|7d|4w          compare against the snapshot closest to this long before the newest one
+  --from FILE  --to FILE     compare two snapshot files directly
+  --snapshot-dir DIR         where snapshots live (default ~/.roomy/snapshots)
+  --min-delta-mb N           ignore changes smaller than N MB (default 1)
+  --top N                    rows per table (default 15)
+  --list                     list the snapshots instead of comparing
+  --json                     full GrowthReport on stdout
+```
+
+Without `--since`, the two most recent snapshots are compared. With fewer than two snapshots it exits 64 and says so.
+
+```
+roomy growth · agent-07 · 2026-11-08 09:00 → 2026-11-15 09:00 (7.0 days)
+Disk: 120.0 GB free → 95.0 GB free (used +25.0 GB)
+Roomy targets: 40.0 GB → 52.0 GB (+12.0 GB)
+Outside Roomy targets: +13.0 GB.
+
+Grew (2)
+CHANGE    NOW      STATUS  CATEGORY      PATH              LABEL
++9.0 GB   21.0 GB  grew    globalCaches  ~/.cache/uv       uv cache
++3.0 GB   3.0 GB   new     aiTools       ~/.ollama/models  Ollama models
+
+Directories that grew · OUTSIDE is the part that is not a Roomy target
+CHANGE    NOW      OUTSIDE   PATH
++13.0 GB  48.0 GB  +13.0 GB  ~/recordings
++9.0 GB   30.0 GB  0         ~/.cache
++9.0 GB   21.0 GB  0           ~/.cache/uv
+```
+
+**What it sees.** Findings are whatever Roomy's rules and probes match, compared by path: `grew`, `shrank`, `new`, or `gone` (removed, cleaned, or no longer matched). Growth outside the rules shows up only as the "Outside Roomy targets" figure, unless the snapshots were taken with `--dirs`. Then every directory down to `--dirs-depth` below the home directory (or the `--dirs-root` directories) is sized too, and the report lists the directories that grew and how much of that growth is not a Roomy target. `--dirs` reads the whole tree, so it is slower than a plain scan; it does not follow symlinks or enter other filesystems mounted below a root, and leaves out directories under 1 MB.
+
+**Scheduling.** Snapshots are only useful on a schedule. Scan the same roots with the same flags each time, or the comparison is skewed (the report warns when the scan root differs).
+
+```sh
+# Linux, from the package: daily, as the user whose home is scanned
+sudo systemctl enable --now roomy-snapshot@agent.timer
+
+# anywhere, with cron: hourly
+0 * * * *  roomy scan --snapshot --dirs --quiet >/dev/null
+```
+
+On macOS, a LaunchAgent in `~/Library/LaunchAgents/dev.getroomy.snapshot.plist` with `ProgramArguments` = `roomy scan --snapshot --dirs --quiet` and `StartCalendarInterval` = `{Hour: 9, Minute: 0}` does the same.
+
+**Retention.** Each `--snapshot` run thins the directory: every snapshot from the last 14 days is kept, then one per calendar week, and anything older than a year is removed. Hourly snapshots therefore stay at a few hundred files.
+
+### GrowthReport (`--json`, `schemaVersion: 1`)
+
+```jsonc
+{
+  "schemaVersion": 1, "host": "agent-07", "home": "/home/agent",
+  "from": "2026-11-08T09:00:00Z", "to": "2026-11-15T09:00:00Z", "seconds": 604800,
+  "warnings": [],
+  "volume": { "totalBytes": 500000000000, "fromAvailableBytes": 128849018880, "toAvailableBytes": 102005473280, "usedDeltaBytes": 26843545600 },
+  "reclaimable": { "fromBytes": 42949672960, "toBytes": 55834574848, "deltaBytes": 12884901888 },
+  "untrackedDeltaBytes": 13958643712,          // used-space growth the findings do not account for
+  "minDeltaBytes": 1048576,
+  "categories": [ { "category": "globalCaches", "fromBytes": 0, "toBytes": 0, "deltaBytes": 0 } ],
+  "items": [                                   // largest growth first, largest shrinkage last
+    { "path": "/home/agent/.cache/uv", "label": "uv cache", "category": "globalCaches", "tier": "safe", "ruleID": "uv-cache",
+      "status": "grew", "fromBytes": 12884901888, "toBytes": 22548578304, "deltaBytes": 9663676416 }
+  ],
+  "dirs": [                                    // only when both snapshots were taken with --dirs
+    { "path": "/home/agent/recordings", "depth": 1, "status": "grew", "fromBytes": 0, "toBytes": 0, "deltaBytes": 0,
+      "reclaimableDeltaBytes": 0 }             // the part of deltaBytes that comes from findings inside it
+  ]
+}
+```
+
+A parent directory's growth includes its children's, so do not sum `dirs`. Snapshot files themselves are JSON with the same `schemaVersion`; both shapes are additive-only.
+
 ## `roomy purge` / `roomy restore`
 
 Quarantine keeps a `<timestamp>-<name>.roomy.json` manifest next to each item with the original path, size and time. `purge --older-than N` removes expired items permanently; `--trash` also purges the freedesktop Trash on Linux. `restore <path-suffix>` moves an item back; with no argument it lists the quarantine.
@@ -134,6 +216,7 @@ Checks `du`, `git`, `docker`, `conda`, Trash support, the quarantine directory, 
 | `ROOMY_HUB_DATA`, `ROOMY_HUB_AGENT_TOKEN`, `ROOMY_HUB_ADMIN_TOKEN` | defaults for `roomy hub serve` |
 | `ROOMY_LICENSE` | license token (alternative to a key file) |
 | `ROOMY_QUARANTINE_DIR` | default quarantine directory |
+| `ROOMY_SNAPSHOT_DIR` | default snapshot directory for `scan --snapshot` and `growth` |
 | `ROOMY_HOSTNAME` | host label in reports, audit and metrics |
 | `XDG_DATA_HOME` | where the freedesktop Trash lives on Linux |
 

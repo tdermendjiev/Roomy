@@ -27,3 +27,6 @@ license-signing.key
 Roomy 20*/
 tools/licensetool/.build/
 tools/licensetool/.swiftpm/
+
+# Private desktop repository, cloned here for docs and landing page work
+Roomy_desktop/

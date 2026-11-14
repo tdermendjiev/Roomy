@@ -26,6 +26,14 @@ struct HubTests {
                       topItems: [HubTopItem(path: "/home/agent/.cache/uv", label: "uv cache", bytes: 5_000_000_000, tier: .safe, category: "globalCaches", ruleID: "uv-cache", idleDays: 3)])
     }
 
+    @Test func historyPointsWrittenBeforeCategoriesStillDecode() throws {
+        let old = #"{"time":"2026-10-01T10:00:00Z","reclaimableBytes":5,"disposedBytes":1,"failures":0,"dryRun":false}"#
+        let d = JSONDecoder(); d.dateDecodingStrategy = .iso8601
+        let p = try d.decode(HubHistoryPoint.self, from: Data(old.utf8))
+        #expect(p.reclaimableBytes == 5)
+        #expect(p.bytesByCategory == nil)
+    }
+
     @Test func dryRunsAreNotCountedAsFreed() throws {
         let dir = try Self.tempDir(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try HubStore(dataDir: dir, staleAfter: 3600)
@@ -61,6 +69,8 @@ struct HubTests {
         #expect(by["a"]?.status == .healthy)
         #expect(by["a"]?.reports == 2)
         #expect(by["a"]?.history.count == 2)
+        // each history point keeps the category split, so the dashboard can show what is growing
+        #expect(by["a"]?.history.last?.bytesByCategory == ["aiTools": 4_000_000_000, "globalCaches": 4_000_000_000])
         #expect(by["b"]?.status == .attention)
         #expect(by["b"]?.statusReasons.first?.contains("failure") == true)
         #expect(by["c"]?.status == .stale)

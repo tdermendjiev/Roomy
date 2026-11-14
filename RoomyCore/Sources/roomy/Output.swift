@@ -75,6 +75,7 @@ enum Output {
         case "m": return n * 60
         case "h": return n * 3600
         case "d": return n * 86_400
+        case "w": return n * 604_800
         default: return nil
         }
     }

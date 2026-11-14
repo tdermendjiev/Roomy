@@ -202,7 +202,11 @@ const fmtDate = iso => iso ? new Date(iso).toLocaleString(undefined, {month:'sho
 const TIERS = [['safe','Safe'],['caution','Review'],['warning','Irreversible']];
 const tierName = t => (TIERS.find(x => x[0] === t) || [t, t])[1];
 const CATS = {aiTools:'AI tools', agentHost:'Agent host leftovers', globalCaches:'Global caches', python:'Python', xcode:'Xcode', homebrew:'Homebrew', docker:'Docker', globalModules:'Global modules', project:'Projects'};
-const catName = c => CATS[c] || c;
+const catName = c => c === 'other' ? 'Other' : (CATS[c] || c);
+// Category colours follow the category, never its rank on a host. Categories without a slot fold into Other.
+const CAT_ORDER = ['aiTools','agentHost','globalCaches','python','docker','project','xcode'];
+const CAT_COLORS = ['#3987e5','#d95926','#199e70','#c98500','#d55181','#008300','#9085e9'];
+const catColor = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? '#6b6b78' : CAT_COLORS[i]; };
 const STATUS_ICON = {
   healthy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   attention: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke-linejoin="round"/></svg>',
@@ -472,6 +476,10 @@ async function viewHost(name) {
     <div class="card"><h3>Reclaimable over time <span class="hint">${h.history.length} reports</span></h3><svg class="chart" id="h-recl"></svg></div>
     <div class="card"><h3>Freed per run</h3><svg class="chart" id="h-freed"></svg></div>
   </section>
+  <section class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Reclaimable by category <span class="hint">one column per day · last 30 days</span></h3><svg class="chart" id="h-cats"></svg><div class="legend" id="h-cats-legend" style="margin-top:10px"></div></div>
+    <div class="card"><h3>What changed <span class="hint" id="h-delta-hint"></span></h3><div id="h-delta"></div></div>
+  </section>
   <section class="grid three-two" style="margin-top:14px">
     <div class="card"><h3>Largest findings <span class="hint">${r.topItems.length} of ${fmtNum(r.findings)} · what the policy may and may not touch</span></h3>
       <table><thead><tr><th>Path</th><th>Tier</th><th>Category</th><th class="r">Idle</th><th class="r">Size</th></tr></thead><tbody>
@@ -490,9 +498,70 @@ async function viewHost(name) {
     </div>
   </section>`;
 }
+// One point per local day: the last report of that day that carries a category breakdown.
+function catSeries(history) {
+  const days = new Map();
+  for (const p of history || []) { if (!p.bytesByCategory) continue; const d = new Date(p.time); days.set(d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(), p); }
+  return [...days.values()].map(p => {
+    const c = {}; let other = 0;
+    for (const [k, v] of Object.entries(p.bytesByCategory)) { if (CAT_ORDER.includes(k)) c[k] = v; else other += v; }
+    if (other) c.other = other;
+    return { t: new Date(p.time).getTime(), c, total: Object.values(c).reduce((a, b) => a + b, 0) };
+  });
+}
+const catKeys = series => [...CAT_ORDER, 'other'].filter(k => series.some(p => (p.c[k] || 0) > 0));
+function stackedChart(svg, series, keys) {
+  const W = svg.clientWidth || 600, H = 190, padL = 48, padR = 8, padT = 14, padB = 24;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  if (series.length < 2) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Category history builds up from this host's next reports</text>`; return; }
+  const nice = niceMax(Math.max(...series.map(p => p.total), 1));
+  const slot = (W - padL - padR) / series.length, bw = Math.min(24, slot * 0.6), plotH = H - padT - padB;
+  const x = i => padL + (i + 0.5) * slot, y = v => padT + plotH * (1 - v / nice);
+  let out = '<g class="grid">';
+  for (let i = 0; i <= 3; i++) { const v = nice * i / 3; out += `<line x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${fmtBytes(v, 0)}</text>`; }
+  out += '</g>';
+  const labelStep = Math.max(1, Math.ceil(series.length / 7));
+  series.forEach((p, i) => {
+    const parts = keys.filter(k => (p.c[k] || 0) > 0);
+    const day = new Date(p.t).toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+    const lines = [...parts].sort((a, b) => p.c[b] - p.c[a]).map(k => `<span class='muted'><i class='dot' style='background:${catColor(k)}'></i> ${esc(catName(k))} · ${fmtBytes(p.c[k])}</span>`).join('');
+    out += `<g data-tip="<b>${esc(day)} · ${fmtBytes(p.total)}</b>${lines}"><rect x="${x(i) - slot/2}" y="${padT}" width="${slot}" height="${plotH}" fill="transparent"/>`;
+    let acc = 0;
+    parts.forEach((k, j) => {
+      const y0 = y(acc), y1 = y(acc + p.c[k]); acc += p.c[k];
+      const top = j === parts.length - 1, h = Math.max(1, y0 - y1 - (top ? 0 : 2));   // 2px surface gap between segments
+      out += top ? `<path d="${roundTop(x(i) - bw/2, y0 - h, bw, h, 4)}" fill="${catColor(k)}"/>` : `<rect x="${x(i) - bw/2}" y="${y0 - h}" width="${bw}" height="${h}" fill="${catColor(k)}"/>`;
+    });
+    out += '</g>';
+    if (i % labelStep === 0 || i === series.length - 1) out += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${esc(day)}</text>`;
+  });
+  svg.innerHTML = out;
+}
+// Change per category between the latest day and the day closest to a week before it.
+function drawCategoryChange(series, keys) {
+  const box = $('#h-delta'), hint = $('#h-delta-hint'); if (!box) return;
+  if (series.length < 2) { hint.textContent = ''; box.innerHTML = '<div class="faint">Needs two days of category history.</div>'; return; }
+  const last = series[series.length - 1], want = last.t - 7 * 86400000;
+  const base = series.slice(0, -1).reduce((b, p) => Math.abs(p.t - want) < Math.abs(b.t - want) ? p : b);
+  const days = Math.max(1, Math.round((last.t - base.t) / 86400000));
+  hint.textContent = `reclaimable by category · over ${days} day${days === 1 ? '' : 's'}`;
+  const sign = v => v === 0 ? '0' : (v > 0 ? '+' : '−') + fmtBytes(Math.abs(v));
+  const rows = keys.map(k => ({ k, now: last.c[k] || 0, d: (last.c[k] || 0) - (base.c[k] || 0) })).sort((a, b) => b.d - a.d);
+  box.innerHTML = `<table><thead><tr><th>Category</th><th class="r">Now</th><th class="r">Change</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td><i class="dot" style="background:${catColor(r.k)}"></i> ${esc(catName(r.k))}</td><td class="r num muted">${fmtBytes(r.now)}</td><td class="r num">${sign(r.d)}</td></tr>`).join('')}
+    <tr><td class="muted">All categories</td><td class="r num muted">${fmtBytes(last.total)}</td><td class="r num">${sign(last.total - base.total)}</td></tr>
+    </tbody></table>`;
+}
 function drawHostCharts() {
   const h = currentHost; if (!h) return;
   const recl = $('#h-recl'), freed = $('#h-freed'); if (!recl || !freed) return;
+  const cats = $('#h-cats');
+  if (cats) {
+    const all = catSeries(h.history), keys = catKeys(all);
+    stackedChart(cats, all.slice(-30), keys);
+    $('#h-cats-legend').innerHTML = all.length < 2 ? '' : keys.map(k => `<span><i class="dot" style="background:${catColor(k)}"></i> ${esc(catName(k))}</span>`).join('');
+    drawCategoryChange(all, keys);
+  }
   const pts = h.history.map(p => ({ t: new Date(p.time).getTime(), v: p.reclaimableBytes, extra: p.volumeAvailableBytes != null ? fmtBytes(p.volumeAvailableBytes) + ' free' : '' }));
   lineChart(recl, pts);
   const last = h.history.slice(-30);
